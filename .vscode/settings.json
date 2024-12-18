@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"functional": "cpp",
+		"xutility": "cpp",
+		"atomic": "cpp",
+		"memory": "cpp"
+	}
+}
