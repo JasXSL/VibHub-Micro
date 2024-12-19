@@ -35,6 +35,11 @@ void setup() {
     Serial.printf("Board Version: %s\n", Configuration::VH_HWVERSION);
     Serial.printf("Firmware Version: %s\n", Configuration::VH_VERSION);
 
+    pinMode(Configuration::PIN_NFAULT, INPUT_PULLUP);
+    pinMode(Configuration::PIN_NSLEEP, OUTPUT);
+    digitalWrite(Configuration::PIN_NSLEEP, HIGH); // Enables the motor driver by default.
+
+    chargeDetect.setup();
     configButton.setup();
     apiClient.setup();
 
@@ -84,6 +89,7 @@ void loop() {
     userSettings.loop();
     statusLED.loop();
     //ArduinoOTA.handle();
+
 
 }
 

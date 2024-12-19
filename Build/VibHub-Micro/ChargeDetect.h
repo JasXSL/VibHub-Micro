@@ -7,6 +7,7 @@ class ChargeDetect{
 	public:
 		ChargeDetect();
 		void loop();
+		void setup();
 	private:
 		uint32_t lastCheck = 0;
 };

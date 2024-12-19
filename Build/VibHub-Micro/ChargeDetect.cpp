@@ -1,7 +1,14 @@
 #include "ChargeDetect.h"
 #include "StatusLED.h"
 
-ChargeDetect::ChargeDetect(){}
+ChargeDetect::ChargeDetect(){
+
+}
+
+void ChargeDetect::setup(){
+	pinMode(Configuration::PIN_CHRG_STAT, INPUT);
+	pinMode(Configuration::PIN_CHRG_STDBY, INPUT);
+}
 
 void ChargeDetect::loop(){
 
@@ -10,8 +17,8 @@ void ChargeDetect::loop(){
 		return;
 
 	lastCheck = ms;
-	const bool isCharging = digitalRead(Configuration::PIN_CHRG_STAT) == LOW;
-	const bool chargeComplete = digitalRead(Configuration::PIN_CHRG_STDBY) == LOW;
+	const bool isCharging = !digitalRead(Configuration::PIN_CHRG_STAT);
+	const bool chargeComplete = !digitalRead(Configuration::PIN_CHRG_STDBY);
 
 	statusLED.setCharging( isCharging );
 	statusLED.setChargeComplete( !isCharging && chargeComplete );

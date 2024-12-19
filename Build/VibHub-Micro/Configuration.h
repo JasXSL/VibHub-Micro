@@ -62,6 +62,10 @@ namespace Configuration{
     const uint16_t PWM_FREQ         = 12000; // PWM Frequency
     const uint16_t PWM_RESOLUTION   = 8;     // PWM resolution
 
+    // Motor driver nFault
+    const uint8_t PIN_NFAULT = 12;
+    const uint8_t PIN_NSLEEP = 11;
+
     // Button config
     const bool BUTTON_UP            = HIGH;  // Value when the button is not pressed
     const bool BUTTON_DOWN          = LOW;   // Value when the button IS pressed
@@ -71,9 +75,8 @@ namespace Configuration{
     const bool PWR_BUTTON_UP        = HIGH;  // Power button not pressed
     const bool PWR_BUTTON_DOWN      = LOW;  // Power button pressed
     
-    const uint8_t PIN_CHRG_STAT = 8;        // Todo: Checks charge status LOW when charging. If charging you should probably disable the motors. 
-                                            // Todo: When charging, the status indicator should be fading red in and out. When done, make it green.
-    const uint8_t PIN_CHRG_STDBY = 18;      // Todo: LOW when finished charging.
+    const uint8_t PIN_CHRG_STAT = 8;        // Checks charge status LOW when charging.
+    const uint8_t PIN_CHRG_STDBY = 18;      // LOW when finished charging.
 
     // Global randomizer function
     // Returns a random value which can be min through and including max
