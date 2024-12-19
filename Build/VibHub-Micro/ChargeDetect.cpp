@@ -18,3 +18,5 @@ void ChargeDetect::loop(){
 
 
 }
+
+ChargeDetect chargeDetect;

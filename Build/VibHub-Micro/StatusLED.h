@@ -16,14 +16,14 @@ class StatusLED{
         void initialize(); 
         void loop();
         
-        void setBooting( bool booting ){ this->booting = booting; };
-        void setInitializing( bool initializing ){ this->initializing = initializing; };
-        void setPortal( bool portal ){ this->portal = portal; };
-        void setWifiError( bool wifiError ){ this->wifiError = wifiError; };
-        void setSocketError( bool socketError ){ this->socketError = socketError; };
-        void setCharging( bool charging ){ this->charging = charging; };
-        void setChargeComplete( bool chargeComplete ){ this->chargeComplete = chargeComplete; };
-        void setSocketConnected( bool socketConnected ){ this->socketConnected = socketConnected; };
+        void setBooting( bool booting ){ this->booting = booting; loop(); };
+        void setInitializing( bool initializing ){ this->initializing = initializing; loop(); };
+        void setPortal( bool portal ){ this->portal = portal; Serial.printf("Portal: %d\n", portal); loop(); };
+        void setWifiError( bool wifiError ){ this->wifiError = wifiError; loop(); };
+        void setSocketError( bool socketError ){ this->socketError = socketError; loop(); };
+        void setCharging( bool charging ){ this->charging = charging; loop(); };
+        void setChargeComplete( bool chargeComplete ){ this->chargeComplete = chargeComplete; loop(); };
+        void setSocketConnected( bool socketConnected ){ this->socketConnected = socketConnected; loop(); };
         
     private:
         uint8_t programState;           // State the program is currently in

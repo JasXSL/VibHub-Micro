@@ -5,12 +5,10 @@
 #include <ArduinoJson.h> // https://github.com/bblanchon/ArduinoJson
 #include "Configuration.h"
 #include "ApiClient.h"
-#include "FirmwareUpdate.h"
 
 UserSettings::UserSettings(void) :
     //server(Configuration::DEFAULT_HOST),
     port(Configuration::PORT),
-    sleep_after_min(60),
     last_action(0),
     initialized(false)
 {
@@ -68,7 +66,6 @@ void UserSettings::load( bool reset ){
 
 
                     initialized = jsonBuffer["initialized"];
-                    sleep_after_min = jsonBuffer["sleep_after_min"];
 
                 }
                 else
@@ -84,7 +81,6 @@ void UserSettings::load( bool reset ){
     Serial.printf("DeviceID: %s\n", deviceid);
     Serial.printf("Server: %s\n", server);
 	Serial.printf("Port: %i\n", port);
-	Serial.printf("Sleep minutes: %i\n", sleep_after_min);
 
 	if( deviceid[0] == '\0' || port == 0 || port > 65535 || server[0] == '\0' ){
 
@@ -146,7 +142,6 @@ void UserSettings::save(){
 	json["server"] = server;
 	json["port"] = port;
 	json["deviceid"] = deviceid;
-	json["sleep_after_min"] = sleep_after_min;
     json["initialized"] = initialized;
 
 	File configFile = SPIFFS.open(Configuration::SETTINGS_FILE, "w");
@@ -175,23 +170,9 @@ void UserSettings::reset(){
 }
 
 
-void UserSettings::resetSleepTimer(){
-    last_action = millis();
-}
 
 void UserSettings::loop(){
 
-    if( sleep_after_min <= 0 )
-        return;
-
-    // Reset timer if the motor is running or we're updating firmware
-    if( apiClient.motorRunning() || fwUpdate.running ){
-        resetSleepTimer();
-    }
-    else if( millis() > sleep_after_min*60000+last_action ){
-        Serial.println("Sleep timer hit. Shutting down.");
-        esp_deep_sleep_start();
-    }
 }
 
 

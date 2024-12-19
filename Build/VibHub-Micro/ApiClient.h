@@ -39,7 +39,6 @@ class ApiClient {
         void event_disconnect(const char * payload, size_t length);
         void event_p(const char * payload, size_t length);
         void event_ps(const char * payload, size_t length);
-        void event_ota(const char * payload, size_t length);
         
         
         bool _connected;

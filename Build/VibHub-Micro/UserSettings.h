@@ -17,11 +17,9 @@ class UserSettings{
         char server[64];
         unsigned int port;
         char deviceid[64];
-        int sleep_after_min;
         bool initialized;
         
         void loop();
-        void resetSleepTimer();
         void generateDeviceId( bool secure = false, bool save = true );
 
 	private:

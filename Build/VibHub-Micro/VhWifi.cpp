@@ -37,14 +37,14 @@ void VhWifi::connect( bool force, bool reset ){
     itoa(userSettings.port, port, 10);
     WiFiManagerParameter serverPort("port", "Server Port", port, 6);
 
-    char sleepTimerVal[2];
-    itoa(userSettings.sleep_after_min, sleepTimerVal, 10);
-    WiFiManagerParameter sleepTimer("sleep_after_min", "Turn off after minutes of inactivity", sleepTimerVal, 6);
     
     //wifiManager.addParameter(&devId);
     wifiManager.addParameter(&serverHost);
     wifiManager.addParameter(&serverPort);
-    wifiManager.addParameter(&sleepTimer);
+
+    // Disable update
+    std::vector<const char *> menu = {"wifi","exit"};
+    wifiManager.setMenu(menu);
 
     //set config save notify callback
     wifiManager.setSaveParamsCallback(std::bind(&VhWifi::saveConfigCallback, this));
@@ -178,7 +178,6 @@ void VhWifi::saveConfigCallback(){
     char p[5];
     strcpy(p, getParam("port").c_str());
     userSettings.port = atoi(p);
-    userSettings.sleep_after_min = atoi(getParam("sleep_after_min").c_str());
     userSettings.initialized = true;
     userSettings.save();
 

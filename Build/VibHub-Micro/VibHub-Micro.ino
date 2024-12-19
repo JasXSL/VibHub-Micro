@@ -30,7 +30,6 @@ void setup() {
     Serial.begin(115200);
     statusLED.initialize();
 
-
     Serial.println("\nStarting...");
 
     Serial.printf("Board Version: %s\n", Configuration::VH_HWVERSION);
@@ -72,7 +71,7 @@ void setup() {
 
     statusLED.setInitializing(false);
 
-    
+
 }
 
 

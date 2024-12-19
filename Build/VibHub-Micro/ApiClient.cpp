@@ -8,7 +8,6 @@
 #include "Configuration.h"
 #include "StatusLED.h"
 #include "UserSettings.h"
-#include "FirmwareUpdate.h"
 #include <ArduinoJson.h>
 #include "VhWifi.h"
 
@@ -33,7 +32,6 @@ void ApiClient::setup(){
     _socket.on("vib", std::bind(&ApiClient::event_vib, this, _1, _2));
     _socket.on("p", std::bind(&ApiClient::event_p, this, _1, _2));
     _socket.on("ps", std::bind(&ApiClient::event_ps, this, _1, _2));
-    _socket.on("ota", std::bind(&ApiClient::event_ota, this, _1, _2));
 
 	resetMotors();
 
@@ -99,9 +97,7 @@ void ApiClient::event_connect( const char * payload, size_t length ){
     Serial.printf("Initializing with: %s\n", output.c_str());
     _socket.emit("id", output.c_str());
     statusLED.setSocketConnected(true);
-
-    // KC: Force test OTA
-    // fwUpdate.start("0.0.1/Board_Test_32.bin", "ba23a5ca48356df4aac57df6a2634dbe");
+;
 }
 
 void ApiClient::event_disconnect( const char * payload, size_t length ){
@@ -122,8 +118,6 @@ void ApiClient::event_disconnect( const char * payload, size_t length ){
 void ApiClient::event_vib( const char * payload, size_t length ){
 
     Serial.printf("ApiClient::event_vib: %s\n", payload);
-
-    userSettings.resetSleepTimer();
 
     JsonDocument jsonBuffer;
     DeserializationError error = deserializeJson(jsonBuffer, payload);
@@ -207,8 +201,6 @@ void ApiClient::event_p( const char * payload, size_t length ){
 
     Serial.printf("ApiClient::event_p - 0x%08x\n", data);
 
-    userSettings.resetSleepTimer();
-
     int i;
     for( i = 0; i < nrMotors; ++i )
         setFlatPWM(i, vibArray[i]);
@@ -234,27 +226,10 @@ void ApiClient::event_ps( const char * payload, size_t length ){
             continue;
         setFlatPWM(chan, intens);
 
-
     }
 
 }
 
-
-void ApiClient::event_ota( const char * payload, size_t length ){
-    
-    Serial.printf("ApiClient::event_ota - payload: %s\n", payload);
-    
-    userSettings.resetSleepTimer();
-    JsonDocument jsonBuffer;
-    deserializeJson(jsonBuffer, payload);
-    JsonObject root = jsonBuffer.to<JsonObject>();
-
-    const char* file = root["file"];
-    const char* md5 = root["md5"];
-    
-    fwUpdate.start(file, md5);
-
-}
 
 void ApiClient::setFlatPWM( uint8_t motor, uint8_t value = 0 ){
     motors[motor].stopProgram();  // Stop any running program when this is received

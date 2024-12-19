@@ -71,7 +71,6 @@ bool ConfigButton::loop( bool isReconfiguring ){
     // Pressed
     if( buttonState == Configuration::BUTTON_DOWN && _lastButtonState == Configuration::BUTTON_UP ){
         _heldTime = millis();
-        userSettings.resetSleepTimer();
     }
 
     // Start after holding for 4 seconds
