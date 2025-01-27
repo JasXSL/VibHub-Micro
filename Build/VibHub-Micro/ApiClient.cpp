@@ -8,6 +8,8 @@
 #include "Configuration.h"
 #include "StatusLED.h"
 #include "UserSettings.h"
+#include "StatusLED.h"
+#include "BatteryReader.h"
 #include <ArduinoJson.h>
 #include "VhWifi.h"
 
@@ -32,6 +34,7 @@ void ApiClient::setup(){
     _socket.on("vib", std::bind(&ApiClient::event_vib, this, _1, _2));
     _socket.on("p", std::bind(&ApiClient::event_p, this, _1, _2));
     _socket.on("ps", std::bind(&ApiClient::event_ps, this, _1, _2));
+    _socket.on("b", std::bind(&ApiClient::event_b, this, _1, _2));
 
 	resetMotors();
 
@@ -98,6 +101,21 @@ void ApiClient::event_connect( const char * payload, size_t length ){
     _socket.emit("id", output.c_str());
     statusLED.setSocketConnected(true);
 ;
+}
+
+void ApiClient::event_b( const char * payload, size_t length ){
+
+    // Asks us to reply by sending the same task
+    JsonDocument output;
+    output["id"] = userSettings.deviceid;
+    output["b"]["low"] = batteryReader.isLow();
+    output["b"]["mv"] = batteryReader.getMv();
+
+    char out[256];
+    serializeJson(output, out);
+    Serial.printf("ApiClient::event_b repl: %s\n", out);
+    _socket.emit("b", out);
+
 }
 
 void ApiClient::event_disconnect( const char * payload, size_t length ){

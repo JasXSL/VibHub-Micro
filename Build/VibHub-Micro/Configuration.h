@@ -15,7 +15,7 @@
 #define CTASK_APP_OFFLINE "app_offline"         // Capable of doing something when app goes offline
 #define CTASK_CUSTOM_TO_DEVICE "dCustom"        // Capable of receiving custom data from the app
 #define CTASK_DEVICE_TO_CUSTOM "aCustom"        // Capable of sending custom data to the app
-
+#define CTASK_BATTERY_LEVEL "b"                // Capable of reporting battery status
 
 class Capability{
     public:
@@ -30,7 +30,7 @@ class Capability{
 
 namespace Configuration{
 
-    const char VH_VERSION[]         = "mc0.0.1";          // Software version
+    const char VH_VERSION[]         = "mc0.0.2";          // Software version
     const char VH_HWVERSION[]       = "ESP32_2.1";      // Hardware type & version
     const char WIFI_SSID[]          = "VibHub Micro";         // Network SSID
     const char DEFAULT_HOST[]       = "vibhub.io";      // Default socket host
@@ -38,11 +38,12 @@ namespace Configuration{
     const char API_URL[]            = "/socket.io/?transport=websocket";
     const char SETTINGS_FILE[]      = "/config.json";   // Default SPIFFS config file
 
-    const uint8_t NR_CAPABILITIES   = 3;
+    const uint8_t NR_CAPABILITIES   = 4;
     const Capability CAPABILITIES[NR_CAPABILITIES] = {
         Capability(CTASK_PWM_BASIC),
         Capability(CTASK_PWM_SPECIFIC),
-        Capability(CTASK_PROGRAMS)
+        Capability(CTASK_PROGRAMS),
+        Capability(CTASK_BATTERY_LEVEL)
     };
 
     // Websockets
@@ -57,6 +58,10 @@ namespace Configuration{
     const uint8_t NUM_MOTOR_PINS = 4;
     const uint8_t PIN_MOTORS[NUM_MOTOR_PINS] = {2,1, 36,37}; // A/B pairs
     const uint8_t PIN_CONFIG_BUTTON = 5;   // Configuration pin. Use internal pullup   
+
+    // Battery level
+    const uint8_t PIN_BATTERY_LV = 10;
+    const uint32_t LOW_BATTERY_VOLTAGE = 1700; // 1.7V after divider = ~3.4V
 
     // PWM
     const uint16_t PWM_FREQ         = 12000; // PWM Frequency
@@ -75,9 +80,6 @@ namespace Configuration{
     const bool PWR_BUTTON_UP        = HIGH;  // Power button not pressed
     const bool PWR_BUTTON_DOWN      = LOW;  // Power button pressed
     
-    const uint8_t PIN_CHRG_STAT = 8;        // Checks charge status LOW when charging.
-    const uint8_t PIN_CHRG_STDBY = 18;      // LOW when finished charging.
-
     // Global randomizer function
     // Returns a random value which can be min through and including max
     // min0 max3 would generate 0, 1, 2, or 3

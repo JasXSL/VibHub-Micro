@@ -53,6 +53,8 @@ void StatusLED::loop(){
 	else if( initializing ){
 		g = 10; b = 5;
 	}
+	/*
+	// Legacy
 	// [Green fade in and out] charging is complete, and not connected to a computer
 	else if( chargeComplete && !usb_serial_jtag_is_connected() ){
 		
@@ -74,14 +76,27 @@ void StatusLED::loop(){
 		g = r;
 		
 	}
+	*/
 	// Blink red on/off while not connected
 	else if( !socketConnected ){
 		uint16_t step = ms%1000;
 		if( step < 500 )
 			r = 10;
 	}
-	else
+	// Normal operation
+	else{
 		g = 50;
+
+		// Mix in green when low battery
+		if( lowBattery ){
+			uint16_t step = ms%2000;
+			if( step < 1000 )
+				g = map(step, 0, 1000, 0, 50);
+			else
+				g = map(step, 1000, 2000, 50, 0);
+		}
+
+	}
 
 	if( r != curR || g != curG || b != curB ){
 		Serial.printf("New color: %d %d %d\n", r, g, b);

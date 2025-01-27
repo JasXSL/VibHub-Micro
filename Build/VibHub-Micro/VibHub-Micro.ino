@@ -20,7 +20,7 @@ and socket.io-client: https://github.com/Kadah/socket.io-client
 #include "ConfigButton.h"
 #include "ApiClient.h"
 #include "StatusLED.h"
-#include "ChargeDetect.h"
+#include "BatteryReader.h"
 
 
 // Program begins
@@ -39,9 +39,9 @@ void setup() {
     pinMode(Configuration::PIN_NSLEEP, OUTPUT);
     digitalWrite(Configuration::PIN_NSLEEP, HIGH); // Enables the motor driver by default.
 
-    chargeDetect.setup();
     configButton.setup();
     apiClient.setup();
+    batteryReader.setup();
 
     // Reset config and wifi if config button is held on boot
     bool reset = false;
@@ -83,7 +83,7 @@ void setup() {
 // Main program lööp
 void loop() {
 
-    chargeDetect.loop();
+	batteryReader.loop();
     apiClient.loop();
     configButton.loop();
     userSettings.loop();
@@ -94,20 +94,20 @@ void loop() {
 }
 
 void setClock() {
-  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+    configTime(0, 0, "pool.ntp.org", "time.nist.gov");
 
-  Serial.print("Waiting for NTP time sync: ");
-  time_t nowSecs = time(nullptr);
-  while (nowSecs < 8 * 3600 * 2) {
-    delay(500);
-    Serial.print(".");
-    yield();
-    nowSecs = time(nullptr);
-  }
+    Serial.print("Waiting for NTP time sync: ");
+    time_t nowSecs = time(nullptr);
+    while (nowSecs < 8 * 3600 * 2) {
+        delay(500);
+        Serial.print(".");
+        yield();
+        nowSecs = time(nullptr);
+    }
 
-  Serial.println();
-  struct tm timeinfo;
-  gmtime_r(&nowSecs, &timeinfo);
-  Serial.print("Current time: ");
-  Serial.println(asctime(&timeinfo));
+    Serial.println();
+    struct tm timeinfo;
+    gmtime_r(&nowSecs, &timeinfo);
+    Serial.print("Current time: ");
+    Serial.println(asctime(&timeinfo));
 }

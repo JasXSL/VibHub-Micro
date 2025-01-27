@@ -21,10 +21,10 @@ class StatusLED{
         void setPortal( bool portal ){ this->portal = portal; Serial.printf("Portal: %d\n", portal); loop(); };
         void setWifiError( bool wifiError ){ this->wifiError = wifiError; loop(); };
         void setSocketError( bool socketError ){ this->socketError = socketError; loop(); };
-        void setCharging( bool charging ){ this->charging = charging; loop(); };
-        void setChargeComplete( bool chargeComplete ){ this->chargeComplete = chargeComplete; loop(); };
+        //void setCharging( bool charging ){ this->charging = charging; loop(); };
         void setSocketConnected( bool socketConnected ){ this->socketConnected = socketConnected; loop(); };
-        
+        void setLowBattery( bool lowBattery ){ this->lowBattery = lowBattery; loop(); };
+
     private:
         uint8_t programState;           // State the program is currently in
         CRGB leds[NUM_LEDS];
@@ -33,9 +33,8 @@ class StatusLED{
         bool portal = false;            // We're in config mode
         bool wifiError = false;         // WiFi error found
         bool socketError = false;       // Socket error found
-        bool charging = false;          // Charger plugged in
-        bool chargeComplete = false;    // Charger completed (pair with charging)
         bool socketConnected = false;   // Everything is connected and setup
+        bool lowBattery = false;        
         uint8_t curR = 0;
         uint8_t curG = 0;
         uint8_t curB = 0;
