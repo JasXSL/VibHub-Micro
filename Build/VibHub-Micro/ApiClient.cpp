@@ -34,7 +34,7 @@ void ApiClient::setup(){
     _socket.on("vib", std::bind(&ApiClient::event_vib, this, _1, _2));
     _socket.on("p", std::bind(&ApiClient::event_p, this, _1, _2));
     _socket.on("ps", std::bind(&ApiClient::event_ps, this, _1, _2));
-    _socket.on("b", std::bind(&ApiClient::event_b, this, _1, _2));
+    _socket.on("gb", std::bind(&ApiClient::event_gb, this, _1, _2));
 
 	resetMotors();
 
@@ -71,6 +71,7 @@ void ApiClient::disconnect(){
     _connected = false; // we don't need the disconnect event
     _running = false; // Don't run loop (will cause reconnect)
     _socket.disconnect();
+    statusLED.setSocketConnected(false);
 
 
 }
@@ -103,18 +104,31 @@ void ApiClient::event_connect( const char * payload, size_t length ){
 ;
 }
 
-void ApiClient::event_b( const char * payload, size_t length ){
+// Payload 
+void ApiClient::event_gb( const char * payload, size_t length ){
+
+    JsonDocument jsonBuffer;
+    DeserializationError error = deserializeJson(jsonBuffer, payload);
+    Serial.print("ApiClient::event_gb: ");
+    Serial.println(payload);
+
+    if( error ){
+        Serial.println("Unable to parse battery event");
+        return;
+    }
+
 
     // Asks us to reply by sending the same task
     JsonDocument output;
     output["id"] = userSettings.deviceid;
-    output["b"]["low"] = batteryReader.isLow();
-    output["b"]["mv"] = batteryReader.getMv();
+    output["low"] = batteryReader.isLow();
+    output["mv"] = batteryReader.getMv();
+    output["app"] = jsonBuffer["id"];
 
     char out[256];
     serializeJson(output, out);
-    Serial.printf("ApiClient::event_b repl: %s\n", out);
-    _socket.emit("b", out);
+    Serial.printf("ApiClient::event_gb repl sb: %s\n", out);
+    _socket.emit("sb", out);
 
 }
 
