@@ -18,13 +18,13 @@ class TweenRandObject{
 
 		// Returns a random value based on settings
 		// If the imported value was false, 
-		int getValue( uint8_t inValue );
+		int16_t getValue( uint8_t inValue );
 	private:
 		void reset();				// Sets things to their default value
-		int min = 0;
-		int max = 0;
-		int offset = 0;
-		int multi = 1;
+		int16_t min = 0;
+		int16_t max = 0;
+		int16_t offset = 0;
+		int16_t multi = 1;
 		
 		
 };

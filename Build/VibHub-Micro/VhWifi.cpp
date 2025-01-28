@@ -22,13 +22,16 @@ void VhWifi::connect( bool force, bool reset ){
         clearSettings();   
     
     // Custom CSS shared among the whole site
-    String head = FPSTR(CSS_SHARED);
-    head += "<script>window.onload = () => {";
-        head += getCustomJSPre();
-        head += FPSTR(JS_SHARED);
-        head += getCustomJSPost();
-    head += "};</script>";
-    wifiManager.setCustomHeadElement(head.c_str());
+    const size_t headSize = strlen(CSS_SHARED) + strlen(JS_SHARED) +strlen(JS_SHARED_POST) + strlen(JS_SHARED_PRE) + 512; // Should be enough
+    char head[headSize] = "";
+    strcpy_P(head, CSS_SHARED);
+    strcat_P(head, JS_SHARED_PRE);
+    addCustomJSPre(head, headSize);
+    strcat_P(head, JS_SHARED);
+    addCustomJSPost(head, headSize);
+    strcat_P(head, JS_SHARED_POST);
+
+    wifiManager.setCustomHeadElement(head);
     
     // The extra parameters to be configured
     //WiFiManagerParameter devId("deviceid", "Device ID", userSettings.deviceid, 64);
@@ -64,10 +67,9 @@ void VhWifi::connect( bool force, bool reset ){
     
     wifiManager.setAjaxCallback(std::bind(&VhWifi::onAjax, this, _1));
 
-    String ssid = Configuration::WIFI_SSID;
     if( force ){
 
-        if( !wifiManager.startConfigPortal(ssid.c_str()) ){
+        if( !wifiManager.startConfigPortal(Configuration::WIFI_SSID) ){
 
             Serial.println("VhWifi: Failed to connect and hit timeout");
             handleFatalError();
@@ -100,7 +102,7 @@ void VhWifi::connect( bool force, bool reset ){
         if( !connected ){
 
             Serial.println("VhWifi: Not connected. Starting config portal");
-            if( !wifiManager.startConfigPortal(ssid.c_str()) ){
+            if( !wifiManager.startConfigPortal(Configuration::WIFI_SSID) ){
                 
                 // Config mode failed to enter
                 // Note that this happens also if you hit exit even while connected. Let the fatal error reset handler take care of it.
@@ -126,13 +128,16 @@ void VhWifi::connect( bool force, bool reset ){
 
 }
 
+// Output can be modified here
 String VhWifi::onAjax( WiFiManager* wm ){
 
     Serial.println( wm->server->method() == HTTP_GET  ? FPSTR(S_GET) : FPSTR(S_POST) );
-    String page = "";
-
-    String task = wm->server->arg(F("t")).c_str();
-    if( task == "id" || task == "ids" ){
+    
+    char task[10];
+    strlcpy(task, wm->server->arg(F("t")).c_str(), 10);
+    
+    String page;
+    if( strcmp(task, "id") == 0 || strcmp(task, "ids") == 0 ){
         
         userSettings.generateDeviceId(task == "ids", true);
         page = userSettings.deviceid;
@@ -162,7 +167,7 @@ void VhWifi::clearSettings(){
 String VhWifi::getParam(String name){
     //read parameter from server, for customhmtl input
     String value;
-    if(_wifiManager->server->hasArg(name)){
+    if( _wifiManager->server->hasArg(name) ){
         value = _wifiManager->server->arg(name);
     }
     return value;
@@ -197,23 +202,23 @@ void VhWifi::configModeCallback( WiFiManager *myWiFiManager ){
 
 }
 
-String VhWifi::getCustomJSPre(){
-    String out;
-    out += "window.DEVID='";
-        out+= userSettings.deviceid;
-    out += "';";
-    return out;
+void VhWifi::addCustomJSPre( char * src, size_t len ){
+
+    strlcat(src, "window.DEVID='", len);
+        strlcat(src, userSettings.deviceid, len);
+    strlcat(src, "';", len);
+
 }
 
-String VhWifi::getCustomJSPost(){
+void VhWifi::addCustomJSPost( char * src, size_t len ){
 
-    String out = "";
+    
     // Anything with class VH_VERSION gets innerText set to the version
-    out+= "document.querySelectorAll('.VH_VERSION').forEach(el => {";
-        out+="el.innerText='";
-        out+= Configuration::VH_VERSION;
-        out+= "';";
-    out+= "});";
+    strlcat(src, "document.querySelectorAll('.VH_VERSION').forEach(el => {", len);
+        strlcat(src,"el.innerText='", len);
+        strlcat(src, Configuration::VH_VERSION, len);
+        strlcat(src, "';", len);
+    strlcat(src, "});", len);
 
     
     /*
@@ -224,7 +229,6 @@ String VhWifi::getCustomJSPost(){
         out+= "';";
     out+= "});";
     */
-    return out;
 		
 }
 

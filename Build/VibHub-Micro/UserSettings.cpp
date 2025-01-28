@@ -9,7 +9,6 @@
 UserSettings::UserSettings(void) :
     //server(Configuration::DEFAULT_HOST),
     port(Configuration::PORT),
-    last_action(0),
     initialized(false)
 {
     strcpy(server, Configuration::DEFAULT_HOST);
@@ -45,13 +44,16 @@ void UserSettings::load( bool reset ){
             if( configFile ){
 
                 Serial.println("opened config file:");
-                String content = "";
-                while(configFile.available())
-                    content += char(configFile.read());
+                char content[512] = ""; // Max 512 bytes config file 
+                uint32_t i = 0;
+                while( configFile.available() && i < 511){
+                    content[i] = configFile.read();
+                    ++i;
+                }
 
                 Serial.println(content);
                 JsonDocument jsonBuffer;
-                DeserializationError error = deserializeJson(jsonBuffer, content.c_str());
+                DeserializationError error = deserializeJson(jsonBuffer, content);
                 
 
                 if( !error ){
@@ -123,11 +125,15 @@ void UserSettings::generateDeviceId( bool secure, bool sav ){
 void UserSettings::gen_random( char *s, bool secure ){
     
     const int len = secure ? 20 : 12;
-	const String alphanum =
-        (secure ? "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-
+    const uint8_t charLen = secure ? 62 : 36;
+	char alphanum[charLen+1];
+    if( secure )
+        strcpy(alphanum, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+    else
+        strcpy(alphanum, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+    
     for( int i = 0; i < len; ++i )
-        s[i] = alphanum[esp_random() % (alphanum.length() - 1)];
+        s[i] = alphanum[esp_random() % (charLen - 1)];
     
     s[len] = 0;
 

@@ -25,8 +25,8 @@ TweenProgramStage::TweenProgramStage(JsonObject s){
 	if( s["r"] )
 		re.load(s["r"]);
 	if( s["y"] ){
-		byte y = s["y"];
-		yoyo = y ? true : false;
+		uint8_t y = s["y"];
+		yoyo = y;
 	}
 
 	// Figure out the easing
@@ -71,7 +71,6 @@ TweenProgramStage::TweenProgramStage(JsonObject s){
 		else if( strcmp(tokens[1], "InOut") == 0 )
 			easeType = EaseType::INOUT;
 		
-
 	}
 	
 }
@@ -93,7 +92,7 @@ void TweenProgramStage::reset(){
 	
 }
 
-long TweenProgramStage::getDuration(){
+uint32_t TweenProgramStage::getDuration(){
 
 	return duration*(repeats+1);
 
@@ -103,7 +102,7 @@ float TweenProgramStage::outValue(){
 	return yoyo && repeats%2 ? inValue : intensity;
 }
 
-float TweenProgramStage::getValueAtDelta( long internalDelta ){
+float TweenProgramStage::getValueAtDelta( uint32_t internalDelta ){
 
 	if( internalDelta >= getDuration() )
 		return outValue();

@@ -19,9 +19,9 @@ class TweenProgramStage{
 		TweenRandObject in;
 		TweenRandObject du;
 		TweenRandObject re;
-		int intensity;
-		int duration;
-		int repeats;
+		int16_t intensity;
+		int16_t duration;
+		int16_t repeats;
 
 		Ease ease;
 		EaseType easeType;
@@ -29,10 +29,10 @@ class TweenProgramStage{
 		bool yoyo = false;
 		TweenProgramStage(JsonObject s);		// Constructor
 		void reset();							// Resets at the start of a program
-		long getDuration();						// Gets the total duration of this stage
+		uint32_t getDuration();						// Gets the total duration of this stage
 		float inValue;							// Set when the program starts with the out value of the previous stage
 		float outValue();						// Gets the final outValue, requires inValue to be set
-		float getValueAtDelta( long internalDelta );	// Gets the value at delta relative to the program start
+		float getValueAtDelta( uint32_t internalDelta );	// Gets the value at delta relative to the program start
 
 };
 

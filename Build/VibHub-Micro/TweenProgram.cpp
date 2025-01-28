@@ -7,11 +7,12 @@ TweenProgram::TweenProgram() :
 	repeats(0),
 	completed(true)
 {}
-TweenProgram::TweenProgram( int re ){
+TweenProgram::TweenProgram( int16_t re ){
 	reset(re);
 }
 		
-void TweenProgram::addStageFromJson(JsonObject st){
+void TweenProgram::addStageFromJson( JsonObject st ){
+	
 	stages.push_back(
 		std::unique_ptr<TweenProgramStage>(new TweenProgramStage(st))
 	);
@@ -23,7 +24,7 @@ void TweenProgram::addStageFromJson(JsonObject st){
 void TweenProgram::start(){
 
     // Validate program
-    if (stages.empty()) {
+    if( stages.empty() ){
         return;
     }
 
@@ -37,16 +38,19 @@ void TweenProgram::start(){
 // Reshuffles the program stages
 void TweenProgram::generateStages(){
 
-	long duration = 0;
+	int32_t duration = 0;
 	stages[0]->inValue = value;
-	for( int i=0; i<stages.size(); ++i ){
+	for( uint16_t i = 0; i < stages.size(); ++i ){
+		
 		auto stage = stages[i].get();
 		if( i )
 			stage->inValue = stages[i-1]->outValue();
 		stage->reset();
 		//Serial.printf("Added stage with intens %i, dur %i \n", stage->intensity, stage->duration);
 		duration += stage->getDuration();
+
 	}
+
 	_totalTime = duration;
 	_started = millis();
 	//Serial.printf("%i Program stages generated, free heap: %i \n", stages.size(), ESP.getFreeHeap());
@@ -55,7 +59,7 @@ void TweenProgram::generateStages(){
 }
 
 // Wipes the stages
-void TweenProgram::reset( int rep ){
+void TweenProgram::reset( int16_t rep ){
 	
 	repeats = _repeats = rep;
 	std::vector<std::unique_ptr<TweenProgramStage>>().swap(stages);	// Overwrites the stages
@@ -68,7 +72,7 @@ bool TweenProgram::loop(){
 	bool pre = completed;
 	if( !completed ){
 
-		long delta = millis()-_started;
+		const uint32_t delta = millis()-_started;
 		// Program has ended
 		//Serial.printf("Tick %i %i\n", delta, _totalTime);
 
@@ -87,26 +91,31 @@ bool TweenProgram::loop(){
 
 			}
 			else{
+
 				//Serial.println("DONE");
 				completed = true;
+
 			}
+
 		}
 
 		
 		// Iterate the stages and find the active one
-		long tot = 0;			// Holds total time for stages, Tracks which program stage we're on
+		uint32_t tot = 0;			// Holds total time for stages, Tracks which program stage we're on
 		// Value the tween is starting from
-		for( int i = 0; i<stages.size(); ++i ){
+		for( uint16_t i = 0; i < stages.size(); ++i ){
 			
 			auto stage = stages[i].get();
-			long dur = stage->getDuration();
+			const int32_t dur = stage->getDuration();
 			// The active stage or if it's the last element
 			if( tot+dur >= delta || i == stages.size()-1 ){
 
-				if( delta-tot < 0 ){
-					Serial.printf("Invalid delta generated. Delta: %i, Tot: %i\n", delta, tot);
+				if( (int32_t)delta-tot < 0 ){
+					Serial.printf("Invalid delta generated. Delta: %i\n", delta);
 				}
+
 				value = stage->getValueAtDelta(delta-tot);	// Delta here is relative to the program
+				//Serial.printf("_totalTime %i, _started %i, dur %i, tot %i, delta %i, value %f\n",_totalTime, _started, dur, tot, delta, value);
 				break;
 
 			}

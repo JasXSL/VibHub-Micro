@@ -24,7 +24,6 @@ class UserSettings{
 
 	private:
         void gen_random( char *s, bool secure = false );
-        long last_action;               // millis() of last time there was an update
         
 };
 

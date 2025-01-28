@@ -161,6 +161,9 @@ const char CSS_SHARED[] PROGMEM = "<style>"
 
 "</style>";
 
+const char JS_SHARED_PRE[] = "<script>window.onload = () => {";
+const char JS_SHARED_POST[] = "};</script>";
+
 const char JS_SHARED[] PROGMEM = "\n"
 	"const D=document;"
     "let path=D.location.pathname;\n"
@@ -308,8 +311,8 @@ class VhWifi{
         WiFiManager* _wifiManager;
 		void handleFatalError();		// If something happened that can't be recovered from
 		// Any non-constant data needed to be loaded should go in here
-		String getCustomJSPre();		// Non constant data that should go above the constant data
-		String getCustomJSPost();		// == || == below the constant data
+		void addCustomJSPre( char * src, size_t len );		// Non constant data that should go above the constant data
+		void addCustomJSPost( char * src, size_t len );		// == || == below the constant data
 		String getParam(String name);	// gets a custom param
 
 };

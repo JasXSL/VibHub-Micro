@@ -6,8 +6,8 @@ void TweenRandObject::load(JsonVariant data){
 	if(data.is<bool>())
 		isFalse = true;
 
-	else if(data.is<int>())
-		min = max = data.as<int>();
+	else if(data.is<int16_t>())
+		min = max = data.as<int16_t>();
 	
 	else if( data.is<JsonObject>() ){
 
@@ -28,12 +28,12 @@ void TweenRandObject::load(JsonVariant data){
 
 }
 
-int TweenRandObject::getValue( uint8_t inValue ){
+int16_t TweenRandObject::getValue( uint8_t inValue ){
 
 	if( isFalse )
 		return inValue;
 		
-	int out = Configuration::espRandBetween(min, max)*multi+offset;
+	int16_t out = Configuration::espRandBetween(min, max)*multi+offset;
 	//Serial.printf("Returning a random value between min %i, max %i, multi %i, offset %i: %i\n", min, max, multi, offset, out);
 	return out;
 	

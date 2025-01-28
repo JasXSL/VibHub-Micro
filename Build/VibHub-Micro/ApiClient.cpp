@@ -96,10 +96,10 @@ void ApiClient::event_connect( const char * payload, size_t length ){
             capabilities[Configuration::CAPABILITIES[i].type] = true;
     }
 
-    String output;
+    char output[256]; // Max 256 bytes output from event_connect
     serializeJson(doc, output);
-    Serial.printf("Initializing with: %s\n", output.c_str());
-    _socket.emit("id", output.c_str());
+    Serial.printf("Initializing with: %s\n", output);
+    _socket.emit("id", output);
     statusLED.setSocketConnected(true);
 ;
 }
@@ -171,7 +171,7 @@ void ApiClient::event_vib( const char * payload, size_t length ){
         arr.add(jsonBuffer);
     }
     else if( jsonBuffer.is<JsonArray>() ){
-        for( byte i=0; i<jsonBuffer.size(); ++i ){
+        for( uint8_t i=0; i<jsonBuffer.size(); ++i ){
             if( jsonBuffer[i].is<JsonObject>() )
                 arr.add(jsonBuffer[i]);
         }
@@ -180,7 +180,7 @@ void ApiClient::event_vib( const char * payload, size_t length ){
     }
 
     // Cycle through all programs
-    for( byte i=0; i<arr.size(); ++i ){
+    for( uint8_t i = 0; i < arr.size(); ++i ){
 
         JsonObject j = arr[i];
 
@@ -189,16 +189,14 @@ void ApiClient::event_vib( const char * payload, size_t length ){
         //Serial.println();
 
         const uint8_t numMotors = Configuration::NUM_MOTOR_PINS/2;
-        bool mo[numMotors];
-        for( uint8_t n = 0; n < numMotors; ++n )
-            mo[n] = true;
+        bool mo[numMotors] = {true};
         
         if( j["port"] ){
 
-            int port = j["port"];
+            uint8_t port = j["port"];
             if( port > 0 ){
 
-                for( int i = 0; i<numMotors; ++i )
+                for( uint8_t i = 0; i < numMotors; ++i )
                     mo[i] = port&(1<<i);
 
             }
@@ -209,11 +207,11 @@ void ApiClient::event_vib( const char * payload, size_t length ){
         if( j["repeats"] )
             repeats = j["repeats"];
 
-        for( byte n=0; n < numMotors; ++n ){
+        for( uint8_t n = 0; n < numMotors; ++n ){
 
-            if( mo[n] )
+            if( mo[n] ){
                 motors[n].loadProgram(j["stages"], repeats);
-            
+            }
 
         }
 

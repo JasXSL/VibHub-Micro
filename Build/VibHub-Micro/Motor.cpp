@@ -56,8 +56,7 @@ void Motor::update(){
 	if( !program.loop() )
 		return;
 
-	_duty = min(max((uint8_t)program.value,(uint8_t)0), (uint8_t)255);
-	setPWM(_duty);
+	setPWM((uint8_t)program.value);
 
 }
 
