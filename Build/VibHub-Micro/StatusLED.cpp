@@ -87,13 +87,13 @@ void StatusLED::loop(){
 	else{
 		g = 50;
 
-		// Mix in green when low battery
+		// Mix in red when low battery
 		if( lowBattery ){
 			uint16_t step = ms%2000;
 			if( step < 1000 )
-				g = map(step, 0, 1000, 0, 50);
+				r = map(step, 0, 1000, 0, 50);
 			else
-				g = map(step, 1000, 2000, 50, 0);
+				r = map(step, 1000, 2000, 50, 0);
 		}
 
 	}

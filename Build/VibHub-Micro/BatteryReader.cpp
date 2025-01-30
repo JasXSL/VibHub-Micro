@@ -20,7 +20,10 @@ void BatteryReader::loop(){
 		const bool force = !lastRead;
 		lastRead = ms;
 		_mv = analogReadMilliVolts(Configuration::PIN_BATTERY_LV);
-		const bool lowBattery = _mv < Configuration::LOW_BATTERY_VOLTAGE;
+		uint16_t lbVoltage = Configuration::LOW_BATTERY_VOLTAGE;
+		if( _isLow )
+			lbVoltage += 50; // prevents choppiness
+		const bool lowBattery = _mv < lbVoltage;
 		if( force || lowBattery != batteryReader.isLow() ){ // Only update if it changed or it's the first time we run
 			
 			_isLow = lowBattery;

@@ -5,7 +5,7 @@ External libraries needed:
 ~~https://arduinojson.org/ - Installable via Arduino IDE.
 Ticker-esp32 ??? Don't know where you got this
 ~~Kadah's fork of arduinoWebSockets: https://github.com/Kadah/arduinoWebSockets
-and socket.io-client: https://github.com/Kadah/socket.io-client
+and socket.io-client: https://github.com/JasXSL/socket.io-client
 */ 
 #include <Arduino.h>
 SET_LOOP_TASK_STACK_SIZE(1024 * 16);
