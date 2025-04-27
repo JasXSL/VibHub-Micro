@@ -27,16 +27,16 @@ Motor::Motor( uint8_t pin_en, uint8_t pin_rev ) :
 
 }
 
-void Motor::loadProgram( JsonArray stages, int repeats = 0 ){
+void Motor::loadProgram( JsonArray stages, int16_t repeats, bool highRes ){
 
 	#ifdef DEBUG
 		Serial.println();
 		Serial.printf("Loading new program with #%i stages on motor.\n", stages.size());
 	#endif
 	
+	program.highRes = highRes;
     program.completed = true;
 	program.reset(repeats);
-
 
 	for( auto stage : stages )
 		program.addStageFromJson(stage);
@@ -56,7 +56,8 @@ void Motor::update(){
 	if( !program.loop() )
 		return;
 
-	setPWM((uint8_t)program.value);
+	uint16_t val = (uint16_t)program.value;
+	setPWM(val, program.highRes);
 
 }
 
@@ -64,17 +65,18 @@ bool Motor::running(){
     return _duty > 0;
 }
 
-void Motor::setPWM( uint8_t duty ){
-
+void Motor::setPWM( uint16_t duty, bool highRes ){
+	if( !highRes )
+		duty = map(duty, 0, 255, 0, 4095);
+	duty = duty & 0xFFF; // 12 bits
 	if( duty == _duty )
 		return;
 
-    #ifdef DEBUG
-        Serial.printf("Setting duty: %i on pin %i\n", duty, pin_en);
-    #endif
-    
+	#ifdef DEBUG
+		Serial.printf("Setting duty: %i on pin %i\n", duty, pin_en);
+	#endif
+	
 	_duty = duty;
 	ledcWrite(pin_en, _duty);
-
 }
 

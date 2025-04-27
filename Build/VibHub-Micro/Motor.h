@@ -12,15 +12,15 @@ class Motor{
 
 	public:
 		Motor( uint8_t pin_en, uint8_t pin_rev );								// Creates the motor
-		void loadProgram( JsonArray stages, int repeats );						// Loads a program onto this
+		void loadProgram( JsonArray stages, int16_t repeats = 0, bool highRes = false );						// Loads a program onto this
 		void update();															// Program loop
-        void setPWM( uint8_t duty );	// Sets the PWM
+		void setPWM( uint16_t duty, bool highRes = false );
 		void stopProgram();														// Sets the program as completed
 		TweenProgram program;
 		bool running();															// Returns true if the duty is > 0
 
     protected:
-        uint8_t _duty;															// Duty cycle (0-255)
+        uint16_t _duty;															// Duty cycle (0-255)
 		uint8_t pin_en;
 		uint8_t pin_rev;
 

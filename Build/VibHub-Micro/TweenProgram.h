@@ -10,8 +10,9 @@ class TweenProgram{
 	public:
 		std::vector<std::unique_ptr<TweenProgramStage>> stages;
 		int16_t repeats;			// Total repeats for this program
-		float value;			// Current tween value
-		bool completed;			// Program completed
+		float value;				// Current tween value
+		bool completed;				// Program completed
+		bool highRes;				// Specifies that we want to use a high res range. If not set, we remap the output from 0-255 to 0-4095
 
 		TweenProgram();
 		TweenProgram( int16_t re );

@@ -27,7 +27,7 @@ class ApiClient {
         
         void loop();
         
-        void setFlatPWM( uint8_t motor, uint8_t value );
+        void setFlatPWM( uint8_t motor, uint16_t value = 0, bool highRes = false );
         void event_vib(const char * payload, size_t length);
         void event_p(const char * payload, size_t length);
         void event_ps(const char * payload, size_t length);

@@ -9,22 +9,24 @@
 #undef min
 #undef max
 
-#define CTASK_PWM_BASIC "p"                     // Capable of handling motor updates in one go
-#define CTASK_PWM_SPECIFIC "ps"                 // Capable of handling individual motor updates
+#define CTASK_PWM_BASIC "p"                     // Capable of handling motor updates in one go. Data contains hex encoded bytes for each motor, with the first motor being the rightmost hex pair. If data contains more pairs than we have motors, the first entry becomes a settings byte.
+    const uint8_t CTASK_PWM_BASIC_HIGHRES = 0x1;        // Indicates that we're using highres, and that data comes as 16 bit hex encodings instead of 8, MSB left.
+#define CTASK_PWM_SPECIFIC "ps"                 // Capable of handling individual motor updates. Bytes are received as hex, with the first pair being the motor index, and the second pair being the duty cycle. The leftmost bit is reserved as a "high res" flag, in which case the data is received in groups of 3 hex encoded bytes instead of 2.
 #define CTASK_PROGRAMS "vib"                    // Capable of handling programs
 #define CTASK_APP_OFFLINE "app_offline"         // Capable of doing something when app goes offline
 #define CTASK_CUSTOM_TO_DEVICE "dCustom"        // Capable of receiving custom data from the app
 #define CTASK_DEVICE_TO_CUSTOM "aCustom"        // Capable of sending custom data to the app
 #define CTASK_BATTERY_LEVEL "sb"                // Capable of reporting battery status
-
+#define CTASK_HIGHRES "h"                       // Capable of handling high-res versions of PWM_BASIC/SPECIFIC and PROGRAMS. The desc is a string representation of the max nr of bits we support.              
 class Capability{
     public:
-        Capability( const char* t, bool modded = false ){
-            type = (char*)t;
-            modified = modded;            
+        Capability( const char* t, char * d = NULL ){
+            type = (char*)t;    
+            if( d != NULL )
+                strlcpy(desc, d, 16);
         }
         char *type;
-        bool modified;
+        char desc[16] = "";
 };
 
 
@@ -38,12 +40,13 @@ namespace Configuration{
     const char API_URL[]            = "/socket.io/?transport=websocket";
     const char SETTINGS_FILE[]      = "/config.json";   // Default SPIFFS config file
 
-    const uint8_t NR_CAPABILITIES   = 4;
+    const uint8_t NR_CAPABILITIES   = 5;
     const Capability CAPABILITIES[NR_CAPABILITIES] = {
         Capability(CTASK_PWM_BASIC),
         Capability(CTASK_PWM_SPECIFIC),
         Capability(CTASK_PROGRAMS),
-        Capability(CTASK_BATTERY_LEVEL)
+        Capability(CTASK_BATTERY_LEVEL),
+        Capability(CTASK_HIGHRES, "12")
     };
 
     // Websockets
@@ -65,8 +68,8 @@ namespace Configuration{
     const uint32_t MAX_BATTERY_VOLTAGE = 4200;
 
     // PWM
-    const uint16_t PWM_FREQ         = 12000; // PWM Frequency
-    const uint16_t PWM_RESOLUTION   = 8;     // PWM resolution
+    const uint16_t PWM_FREQ         = 8000;    // PWM Frequency
+    const uint16_t PWM_RESOLUTION   = 12;       // PWM resolution
 
     // Motor driver nFault
     const uint8_t PIN_NFAULT = 12;

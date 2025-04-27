@@ -13,6 +13,8 @@
 #include <ArduinoJson.h>
 #include "VhWifi.h"
 
+
+
 ApiClient::ApiClient(void) :
     _socket(),
     _connected(false),
@@ -86,8 +88,10 @@ void ApiClient::handle_connect( const char * payload, size_t length, char * out,
 
     JsonObject capabilities = doc["capabilities"].to<JsonObject>();
     for( uint8_t i = 0; i < Configuration::NR_CAPABILITIES; ++i ){
-        if( Configuration::CAPABILITIES[i].modified )
-            capabilities[Configuration::CAPABILITIES[i].type] = "modified";
+        
+        const char * desc = Configuration::CAPABILITIES[i].desc;
+        if( desc[0] )
+            capabilities[Configuration::CAPABILITIES[i].type] = desc;
         else
             capabilities[Configuration::CAPABILITIES[i].type] = true;
     }
@@ -175,8 +179,7 @@ void ApiClient::event_disconnect( const char * payload, size_t length ){
 
 
 void ApiClient::event_vib( const char * payload, size_t length ){
-
-    Serial.printf("ApiClient::event_vib: %s\n", payload);
+    length = strnlen(payload, length);
 
     JsonDocument jsonBuffer;
     DeserializationError error = deserializeJson(jsonBuffer, payload);
@@ -234,10 +237,14 @@ void ApiClient::event_vib( const char * payload, size_t length ){
         if( j["repeats"] )
             repeats = j["repeats"];
 
+        bool highres = false;
+        if( j["highres"] )
+            highres = j["highres"];
+
         for( uint8_t n = 0; n < numMotors; ++n ){
 
             if( mo[n] ){
-                motors[n].loadProgram(j["stages"], repeats);
+                motors[n].loadProgram(j["stages"], repeats, highres);
             }
 
         }
@@ -249,48 +256,70 @@ void ApiClient::event_vib( const char * payload, size_t length ){
 
 
 void ApiClient::event_p( const char * payload, size_t length ){
+    length = strnlen(payload, length); // For some reason, length is often wrong here
 
     const uint8_t nrMotors = Configuration::NUM_MOTOR_PINS/2;
-    uint32_t data = strtoul(payload, 0, 16);
-    uint8_t vibArray[nrMotors];
-    for( uint8_t i = 0; i < nrMotors; ++i )
-        vibArray[i] = (data>>(i*8))&0xFF;
+    uint8_t flags = 0;
+    bool highRes = false;
+    if( length > nrMotors*2 ){
 
-    Serial.printf("ApiClient::event_p - 0x%08x\n", data);
+        char first[3] = {0};
+        strncpy(first, payload, 2); 
+        flags = strtoul(first, 0, 16);
+        if( flags & 0x01 )
+            highRes = true;
 
-    int i;
-    for( i = 0; i < nrMotors; ++i )
-        setFlatPWM(i, vibArray[i]);
-
-}
-
-void ApiClient::event_ps( const char * payload, size_t length ){
-
-    Serial.printf("ApiClient::event_ps - %s length %i\n", payload, length);
-
-    // length seems to be off by 12 for some reason?
-    if( length > 12 )
-        length -= 12;
-
-    // Blocks of 4
-    for( size_t i = 0; i < length; i += 4 ){
-
-        char temp[5] = {payload[i], payload[i+1], payload[i+2], payload[i+3]};
-        uint32_t sub = strtoul(temp, 0, 16);
-        uint8_t chan = (sub>>8);
-        uint8_t intens = sub;       // Should work since it shaves off anything left of the first 8 bits
-        if( chan > Configuration::NUM_MOTOR_PINS/2 )
-            continue;
-        setFlatPWM(chan, intens);
+    }
+    
+    for( uint8_t i = 0; i < nrMotors; ++i ){
+        
+        const uint8_t offs = 2+highRes*2;
+        uint8_t startFrom = length - i*offs - offs;
+        char group[3+offs] = {0};
+        strncpy(group, payload+startFrom, offs);
+        setFlatPWM(i, strtoul(group, 0, 16), highRes); // Assigns 32bit to 16 bit, but that's because there's no unsigned strto function for 16bit
 
     }
 
+    Serial.printf("ApiClient::event_p - %s, length %i, nrMotors %i, highRes %i\n", payload, length, nrMotors, highRes);       
+
+}
+
+// receiving a hex string
+void ApiClient::event_ps( const char * payload, size_t length ){
+    length = strnlen(payload, length);
+
+    Serial.printf("ApiClient::event_ps - %s length %i\n", payload, length);
+    size_t i = 0;
+
+    while( i < length ){
+
+        char temp[3] = {0};
+        strlcpy(temp, payload+i, 3);
+        uint16_t targetMotor = strtoul(temp, 0, 16);
+        const bool isHighRes = targetMotor & 0b10000000; // Leftmost bit is reserved for high res toggle
+        targetMotor = targetMotor &~ 0b10000000; // Remove leftmost bit to get a motor number
+        
+        const uint8_t add = (isHighRes*2);
+        if( i+4+add > length )
+            break;
+
+        char valString[3+add] = {0};
+        strlcpy(valString, payload+i+2, 3+add);
+        uint16_t val = strtoul(valString, 0, 16); // Assigns 32bit to 16 bit, but that's because there's no unsigned strto function for 16bit
+        setFlatPWM(targetMotor, val, isHighRes);
+
+        i += 4+add;
+
+    }
+
+
 }
 
 
-void ApiClient::setFlatPWM( uint8_t motor, uint8_t value = 0 ){
+void ApiClient::setFlatPWM( uint8_t motor, uint16_t value, bool highRes ){
     motors[motor].stopProgram();  // Stop any running program when this is received
-    motors[motor].setPWM(value);
+    motors[motor].setPWM(value, highRes);
 }
 
 void ApiClient::resetMotors(){

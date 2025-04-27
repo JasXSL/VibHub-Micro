@@ -1,12 +1,12 @@
 #include "TweenRandObject.h"
 
-void TweenRandObject::load(JsonVariant data){
+void TweenRandObject::load( JsonVariant data ){
 	reset();
 
-	if(data.is<bool>())
+	if( data.is<bool>() )
 		isFalse = true;
 
-	else if(data.is<int16_t>())
+	else if( data.is<int16_t>() )
 		min = max = data.as<int16_t>();
 	
 	else if( data.is<JsonObject>() ){
@@ -24,7 +24,6 @@ void TweenRandObject::load(JsonVariant data){
 	}
 	else
 		Serial.println("RandObject is INVALID");
-
 
 }
 

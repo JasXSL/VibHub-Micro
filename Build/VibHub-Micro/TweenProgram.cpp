@@ -2,10 +2,13 @@
 #include "TweenProgramStage.h"
 #include <FS.h>
 
+//#define DEBUG
+
 // Constructor
 TweenProgram::TweenProgram() :
 	repeats(0),
-	completed(true)
+	completed(true),
+	highRes(false)
 {}
 TweenProgram::TweenProgram( int16_t re ){
 	reset(re);
@@ -46,16 +49,19 @@ void TweenProgram::generateStages(){
 		if( i )
 			stage->inValue = stages[i-1]->outValue();
 		stage->reset();
-		//Serial.printf("Added stage with intens %i, dur %i \n", stage->intensity, stage->duration);
+		#ifdef DEBUG
+		Serial.printf("Added stage with intens %i, dur %i \n", stage->intensity, stage->duration);
+		#endif
 		duration += stage->getDuration();
 
 	}
 
 	_totalTime = duration;
 	_started = millis();
-	//Serial.printf("%i Program stages generated, free heap: %i \n", stages.size(), ESP.getFreeHeap());
-	//Serial.printf("Program total duration %i, started %i \n", _totalTime, _started);
-
+	#ifdef DEBUG
+	Serial.printf("%i Program stages generated, free heap: %i \n", stages.size(), ESP.getFreeHeap());
+	Serial.printf("Program total duration %i, started %i \n", _totalTime, _started);
+	#endif
 }
 
 // Wipes the stages

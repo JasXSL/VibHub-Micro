@@ -85,9 +85,7 @@ void TweenProgramStage::reset(){
 		duration = 0;
 	if( repeats < 0 )
 		repeats = 0;
-	if( intensity > 255 )
-		intensity = 255;
-	else if( intensity < 0 )
+	if( intensity < 0 )
 		intensity = 0;
 	
 }
