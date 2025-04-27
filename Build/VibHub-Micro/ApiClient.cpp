@@ -124,15 +124,18 @@ void ApiClient::event_connect( const char * payload, size_t length ){
 
 }
 
+// Keep in mind that payload may be NULL
 void ApiClient::handle_gb( const char * payload, size_t length, char * out, size_t outLength ){
     JsonDocument jsonBuffer;
-    DeserializationError error = deserializeJson(jsonBuffer, payload);
-    Serial.print("ApiClient::event_gb: ");
-    Serial.println(payload);
+    if( payload ){
+        DeserializationError error = deserializeJson(jsonBuffer, payload);
+        Serial.print("ApiClient::event_gb: ");
+        Serial.println(payload);
 
-    if( error ){
-        Serial.println("Unable to parse battery event");
-        return;
+        if( error ){
+            Serial.println("Unable to parse battery event");
+            return;
+        }
     }
 
 
@@ -142,14 +145,17 @@ void ApiClient::handle_gb( const char * payload, size_t length, char * out, size
     output["low"] = batteryReader.isLow();
     output["mv"] = batteryReader.getMv();
     output["xv"] = Configuration::MAX_BATTERY_VOLTAGE;
-    output["app"] = jsonBuffer["id"];
+    if( payload )
+        output["app"] = jsonBuffer["id"];
 
     // Raise a response event
     if( out == NULL ){
+
         char out[256];
         serializeJson(output, out);
         Serial.printf("ApiClient::event_gb repl sb: %s\n", out);
         _socket.emit("sb", out);
+
     }
     // Just overwrite out
     else{
@@ -219,11 +225,13 @@ void ApiClient::event_vib( const char * payload, size_t length ){
         //Serial.println();
 
         const uint8_t numMotors = Configuration::NUM_MOTOR_PINS/2;
-        bool mo[numMotors] = {true};
+        bool mo[numMotors];
+        for( uint8_t n = 0; n < numMotors; ++n )
+            mo[n] = true;
         
         if( j["port"] ){
 
-            uint8_t port = j["port"];
+            int16_t port = j["port"];
             if( port > 0 ){
 
                 for( uint8_t i = 0; i < numMotors; ++i )

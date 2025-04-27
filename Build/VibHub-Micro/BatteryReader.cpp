@@ -1,6 +1,7 @@
 #include "Configuration.h"
 #include "BatteryReader.h"
 #include "StatusLED.h"
+#include "ApiClient.h"
 #include <Arduino.h>
 
 BatteryReader::BatteryReader(){
@@ -31,6 +32,12 @@ void BatteryReader::loop(){
 
 		}
 
+	}
+
+	if( ms - lastRefresh > REFRESH_INTERVAL || !lastRefresh ){
+		// Need to send to server
+		apiClient.handle_gb(NULL, 0);
+		lastRefresh = ms;
 	}
 
 }
