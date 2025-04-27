@@ -15,7 +15,7 @@
 #define CTASK_APP_OFFLINE "app_offline"         // Capable of doing something when app goes offline
 #define CTASK_CUSTOM_TO_DEVICE "dCustom"        // Capable of receiving custom data from the app
 #define CTASK_DEVICE_TO_CUSTOM "aCustom"        // Capable of sending custom data to the app
-#define CTASK_BATTERY_LEVEL "b"                // Capable of reporting battery status
+#define CTASK_BATTERY_LEVEL "sb"                // Capable of reporting battery status
 
 class Capability{
     public:
@@ -30,11 +30,11 @@ class Capability{
 
 namespace Configuration{
 
-    const char VH_VERSION[]         = "mc0.0.2";          // Software version
-    const char VH_HWVERSION[]       = "ESP32_2.1";      // Hardware type & version
+    const char VH_VERSION[]         = "mc0.0.3";          // Software version
+    const char VH_HWVERSION[]       = "MicroHub R1";      // Hardware type & version
     const char WIFI_SSID[]          = "VibHub Micro";         // Network SSID
     const char DEFAULT_HOST[]       = "vibhub.io";      // Default socket host
-    const int  PORT                 = 80;               // Default socket port
+    const uint16_t  PORT            = 80;               // Default socket port
     const char API_URL[]            = "/socket.io/?transport=websocket";
     const char SETTINGS_FILE[]      = "/config.json";   // Default SPIFFS config file
 
@@ -56,12 +56,13 @@ namespace Configuration{
     const uint8_t PIN_SLED        = 38;     // WS2812 Status LED
     
     const uint8_t NUM_MOTOR_PINS = 4;
-    const uint8_t PIN_MOTORS[NUM_MOTOR_PINS] = {2,1, 36,37}; // A/B pairs
+    const uint8_t PIN_MOTORS[NUM_MOTOR_PINS] = {36,37, 2,1}; // A/B pairs
     const uint8_t PIN_CONFIG_BUTTON = 5;   // Configuration pin. Use internal pullup   
 
     // Battery level
     const uint8_t PIN_BATTERY_LV = 10;
-    const uint32_t LOW_BATTERY_VOLTAGE = 1700; // 1.7V after divider = ~3.4V
+    const uint32_t LOW_BATTERY_VOLTAGE = 3400; // Millivolts ~3.4V
+    const uint32_t MAX_BATTERY_VOLTAGE = 4200;
 
     // PWM
     const uint16_t PWM_FREQ         = 12000; // PWM Frequency

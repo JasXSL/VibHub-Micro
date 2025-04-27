@@ -70,7 +70,7 @@ void Motor::setPWM( uint8_t duty ){
 		return;
 
     #ifdef DEBUG
-        Serial.printf("Setting duty: %i on channels %i\n", duty, pwm._channel);
+        Serial.printf("Setting duty: %i on pin %i\n", duty, pin_en);
     #endif
     
 	_duty = duty;

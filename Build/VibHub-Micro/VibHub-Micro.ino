@@ -21,7 +21,7 @@ SET_LOOP_TASK_STACK_SIZE(1024 * 16);
 #include "ApiClient.h"
 #include "StatusLED.h"
 #include "BatteryReader.h"
-
+#include "VhSerial.h"
 
 // Program begins
 void setup() {
@@ -88,6 +88,7 @@ void loop() {
     configButton.loop();
     userSettings.loop();
     statusLED.loop();
+    vhSerial.loop();
     //ArduinoOTA.handle();
 
 

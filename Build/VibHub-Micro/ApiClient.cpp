@@ -76,11 +76,7 @@ void ApiClient::disconnect(){
 
 }
 
-void ApiClient::event_connect( const char * payload, size_t length ){
-
-	resetMotors();
-    Serial.println("ApiClient::event_connect");
-    _connected = true;
+void ApiClient::handle_connect( const char * payload, size_t length, char * out, size_t outLength ){
 
     JsonDocument doc;
     doc["id"] = userSettings.deviceid;
@@ -88,7 +84,7 @@ void ApiClient::event_connect( const char * payload, size_t length ){
     doc["hwversion"] = Configuration::VH_HWVERSION;
     doc["numPorts"] = Configuration::NUM_MOTOR_PINS/2;
 
-    JsonObject capabilities = doc["capabilities"];
+    JsonObject capabilities = doc["capabilities"].to<JsonObject>();
     for( uint8_t i = 0; i < Configuration::NR_CAPABILITIES; ++i ){
         if( Configuration::CAPABILITIES[i].modified )
             capabilities[Configuration::CAPABILITIES[i].type] = "modified";
@@ -96,17 +92,35 @@ void ApiClient::event_connect( const char * payload, size_t length ){
             capabilities[Configuration::CAPABILITIES[i].type] = true;
     }
 
-    char output[256]; // Max 256 bytes output from event_connect
-    serializeJson(doc, output);
-    Serial.printf("Initializing with: %s\n", output);
-    _socket.emit("id", output);
-    statusLED.setSocketConnected(true);
-;
+    if( out == NULL ){
+
+        // Output to socket
+        char output[256]; // Max 256 bytes output from event_connect
+        serializeJson(doc, output);
+        Serial.printf("Initializing with: %s\n", output);
+        _socket.emit("id", output);
+
+    }
+    // Output to out var
+    else{
+        serializeJson(doc, out, outLength);
+    }
+
 }
 
-// Payload 
-void ApiClient::event_gb( const char * payload, size_t length ){
+void ApiClient::event_connect( const char * payload, size_t length ){
 
+	resetMotors();
+    Serial.println("ApiClient::event_connect");
+    _connected = true;
+
+    handle_connect(payload, length);
+    statusLED.setSocketConnected(true);
+    statusLED.setSocketError(false);
+
+}
+
+void ApiClient::handle_gb( const char * payload, size_t length, char * out, size_t outLength ){
     JsonDocument jsonBuffer;
     DeserializationError error = deserializeJson(jsonBuffer, payload);
     Serial.print("ApiClient::event_gb: ");
@@ -123,14 +137,27 @@ void ApiClient::event_gb( const char * payload, size_t length ){
     output["id"] = userSettings.deviceid;
     output["low"] = batteryReader.isLow();
     output["mv"] = batteryReader.getMv();
+    output["xv"] = Configuration::MAX_BATTERY_VOLTAGE;
     output["app"] = jsonBuffer["id"];
 
-    char out[256];
-    serializeJson(output, out);
-    Serial.printf("ApiClient::event_gb repl sb: %s\n", out);
-    _socket.emit("sb", out);
-
+    // Raise a response event
+    if( out == NULL ){
+        char out[256];
+        serializeJson(output, out);
+        Serial.printf("ApiClient::event_gb repl sb: %s\n", out);
+        _socket.emit("sb", out);
+    }
+    // Just overwrite out
+    else{
+        serializeJson(output, out, outLength);
+    }
 }
+// Tunnels into handle_gb, which can be used by vhSerial
+void ApiClient::event_gb( const char * payload, size_t length ){
+    handle_gb(payload, length);
+}
+
+
 
 void ApiClient::event_disconnect( const char * payload, size_t length ){
 

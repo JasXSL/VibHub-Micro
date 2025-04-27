@@ -29,16 +29,21 @@ class ApiClient {
         
         void setFlatPWM( uint8_t motor, uint8_t value );
         void event_vib(const char * payload, size_t length);
+        void event_p(const char * payload, size_t length);
+        void event_ps(const char * payload, size_t length);
+
+        void handle_connect( const char * payload, size_t length, char * out = NULL, size_t outLength = 0 );
+        void handle_gb(const char * payload, size_t length, char * out = NULL, size_t outLength = 0);
+        
         bool motorRunning();    // Returns true if at least one motor is above 0
         void resetMotors();
+        
 
     private:
         SocketIoClient _socket;
         
         void event_connect(const char * payload, size_t length);
         void event_disconnect(const char * payload, size_t length);
-        void event_p(const char * payload, size_t length);
-        void event_ps(const char * payload, size_t length);
         void event_gb(const char * payload, size_t length);
         
         

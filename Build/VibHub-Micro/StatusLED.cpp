@@ -99,7 +99,7 @@ void StatusLED::loop(){
 	}
 
 	if( r != curR || g != curG || b != curB ){
-		Serial.printf("New color: %d %d %d\n", r, g, b);
+		//Serial.printf("New color: %d %d %d\n", r, g, b);
 		curR = r; curG = g; curB = b;
 		leds[0] = CRGB(curR, curG, curB);
 		FastLED.show();
