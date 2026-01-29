@@ -14,16 +14,25 @@ TweenProgramStage::TweenProgramStage(JsonObject s){
 	easeType = EaseType::IN;
 	yoyo = false;
 
+	//Serial.println("Adding the following stage:");
+	//serializeJson(s, Serial);
+	//Serial.println();
+
 	char easing[48] = "Linear.In";
 	if( s["i"] ){
+		//Serial.println("Loading intensity");
 		in.load(s["i"]);
 	}
-	if( s["d"] )
+	if( s["d"] ){
+		//Serial.println("Loading duration");
 		du.load(s["d"]);
+	}
 	if( s["e"] )
 		strcpy(easing, s["e"]);
-	if( s["r"] )
+	if( s["r"] ){
+		//Serial.println("Loading repeats");
 		re.load(s["r"]);
+	}
 	if( s["y"] ){
 		uint8_t y = s["y"];
 		yoyo = y;

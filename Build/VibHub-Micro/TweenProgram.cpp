@@ -16,6 +16,9 @@ TweenProgram::TweenProgram( int16_t re ){
 		
 void TweenProgram::addStageFromJson( JsonObject st ){
 	
+	#ifdef DEBUG 
+	Serial.println("Adding a stage");
+	#endif
 	stages.push_back(
 		std::unique_ptr<TweenProgramStage>(new TweenProgramStage(st))
 	);
