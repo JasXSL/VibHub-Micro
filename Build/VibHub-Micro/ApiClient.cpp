@@ -131,13 +131,13 @@ void ApiClient::handle_gb( const char * payload, size_t length, char * out, size
         DeserializationError error = deserializeJson(jsonBuffer, payload);
         Serial.print("ApiClient::event_gb: ");
         Serial.println(payload);
-
         if( error ){
             Serial.println("Unable to parse battery event");
             return;
         }
     }
 
+    Serial.printf("Free ram = %i\n", ESP.getFreeHeap());
 
     // Asks us to reply by sending the same task
     JsonDocument output;

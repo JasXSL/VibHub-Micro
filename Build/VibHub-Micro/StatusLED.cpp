@@ -2,15 +2,16 @@
 #include "Configuration.h"
 #include <Arduino.h>
 #include "VhWifi.h"
-#include <FastLed.h>
 
 
-StatusLED::StatusLED(){}
+
+StatusLED::StatusLED() : pixels(std::make_unique<LiteLED>(LiteLED(LED_STRIP_WS2812, 0))){
+
+}
 
 
 void StatusLED::initialize(){
-
-	FastLED.addLeds<WS2812, Configuration::PIN_SLED, GRB>(leds, 1);
+	pixels->begin(Configuration::PIN_SLED, NUM_LEDS);
 	booting = true;
 	loop();
 
@@ -101,8 +102,8 @@ void StatusLED::loop(){
 	if( r != curR || g != curG || b != curB ){
 		//Serial.printf("New color: %d %d %d\n", r, g, b);
 		curR = r; curG = g; curB = b;
-		leds[0] = CRGB(curR, curG, curB);
-		FastLED.show();
+		pixels->setPixel(0, (r<<16)|(g<<8)|b);
+		pixels->show();
 	}
 	
 

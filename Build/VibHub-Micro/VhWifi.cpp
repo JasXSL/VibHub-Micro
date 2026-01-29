@@ -17,7 +17,8 @@ void VhWifi::connect( bool force, bool reset ){
     // Start the wifimanager
     WiFiManager wifiManager;
     _wifiManager = &wifiManager;
-    
+    wifiManager.setDebugOutput(true);
+
     if( reset )
         clearSettings();   
     

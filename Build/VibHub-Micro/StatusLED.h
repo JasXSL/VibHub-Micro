@@ -5,7 +5,9 @@
 #define StatusLED_h
 #include <Arduino.h>
 #include <functional>
-#include <FastLED.h>
+#include <LiteLED.h>
+#include <memory>
+
 #define NUM_LEDS 1
 
 using namespace std::placeholders;
@@ -27,7 +29,7 @@ class StatusLED{
 
     private:
         uint8_t programState;           // State the program is currently in
-        CRGB leds[NUM_LEDS];
+        std::unique_ptr<LiteLED> pixels = nullptr;
         bool booting = false;           // Base tasks before trying to connect, used to debug
         bool initializing = false;      // We're trying to connect
         bool portal = false;            // We're in config mode

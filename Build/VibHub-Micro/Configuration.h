@@ -20,7 +20,7 @@
 #define CTASK_HIGHRES "h"                       // Capable of handling high-res versions of PWM_BASIC/SPECIFIC and PROGRAMS. The desc is a string representation of the max nr of bits we support.              
 class Capability{
     public:
-        Capability( const char* t, char * d = NULL ){
+        Capability( const char* t, const char * d = NULL ){
             type = (char*)t;    
             if( d != NULL )
                 strlcpy(desc, d, 16);
@@ -59,7 +59,7 @@ namespace Configuration{
     const uint8_t PIN_SLED        = 38;     // WS2812 Status LED
     
     const uint8_t NUM_MOTOR_PINS = 4;
-    const uint8_t PIN_MOTORS[NUM_MOTOR_PINS] = {36,37, 2,1}; // A/B pairs
+    const uint8_t PIN_MOTORS[NUM_MOTOR_PINS] = {41,42, 2,1}; // A/B pairs
     const uint8_t PIN_CONFIG_BUTTON = 5;   // Configuration pin. Use internal pullup   
 
     // Battery level

@@ -16,7 +16,7 @@ class WifiBreakout: public WiFiManager {
 			for( uint8_t i = 0; i < _numNetworks; ++i ){
 
 				int16_t rssiperc = getRSSIasQuality(WiFi.RSSI(i));
-        		uint8_t enc_type = WiFi.encryptionType(i);
+        		bool encrypted = WiFi.encryptionType(i) == WIFI_AUTH_OPEN;
 				if( WiFi.SSID(i) == "" )
 					continue;
 
@@ -24,7 +24,7 @@ class WifiBreakout: public WiFiManager {
 				obj["ssid"] = WiFi.SSID(i);
 				obj["rssi"] = WiFi.RSSI(i);
 				obj["rssiPerc"] = rssiperc;
-				obj["encType"] = enc_type;
+				obj["encrypted"] = encrypted;
 
 			}
 
@@ -41,7 +41,7 @@ class WifiBreakout: public WiFiManager {
 VhSerial::VhSerial(){};
 
 // Non debug output always starts with !! followed by task, followed by :
-void VhSerial::out( char * task, char * message ){
+void VhSerial::out( const char * task, const char * message ){
 
 	Serial.print("!!");
 	Serial.print(task);
@@ -63,7 +63,7 @@ void VhSerial::finish(){
 	// Get battery info
 	else if( strncmp(buffer, "gb:", 3) == 0 ){
 		char res[256];
-		apiClient.handle_gb(buffer+3, bufferIndex-3, res, 256);
+		apiClient.handle_gb(NULL, 0, res, 256);
 		out("gb", res);
 	}
 	// Trigger program
@@ -76,11 +76,17 @@ void VhSerial::finish(){
 		out("connect", res);
 	}
 	// Reset device id
-	else if( strncmp(buffer, "reset:", 6) == 0 ){
+	else if( strncmp(buffer, "resetid:", 8) == 0 ){
 
-		const bool secure = bufferIndex > 6 && buffer[6] == 's' ? true : false;
+		// bufferIndex is pointing towards the null terminator
+		const bool secure = bufferIndex > 8 && buffer[8] == 's' ? true : false;
+		Serial.println(buffer);
 		userSettings.generateDeviceId(secure, true);
-		out("reset", userSettings.deviceid);
+		out("resetid", userSettings.deviceid);
+
+		// Reconnect
+		apiClient.disconnect();
+		apiClient.connect();
 
 	}
 	// Update wifi settings
@@ -116,11 +122,15 @@ void VhSerial::finish(){
 	// Get wifi settings
 	else if( strncmp(buffer, "gwifi:", 6) == 0 ){
 		
-		char res[1024];
+		char res[4096];
 		WifiBreakout wifiBreakout;
-		wifiBreakout.dumpNetworks(res, 1024);
+		wifiBreakout.dumpNetworks(res, 4096);
 		out("gwifi", res);
 
+	}
+	// Get the current WiFI SSID
+	else if( strncmp(buffer, "gnet:", 5) == 0 ){
+		out("gnet", WiFi.SSID().c_str());
 	}
 
 	

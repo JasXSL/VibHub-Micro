@@ -10,7 +10,7 @@ class VhSerial{
 	public:
 		VhSerial();
 		void loop();
-		void out( char * task, char * message );
+		void out( const char * task, const char * message );
 	private:
 		uint32_t lastRead = 0;
 		const uint32_t READ_TIMEOUT = 10; // ms before forcing end of transaction. We can also send a newline character.

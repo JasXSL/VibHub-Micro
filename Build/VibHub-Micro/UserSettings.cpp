@@ -158,6 +158,7 @@ void UserSettings::save(){
 	serializeJson(json, Serial);
 	serializeJson(json, configFile);
 	configFile.close();
+    Serial.println();
     
 }
 
