@@ -17,6 +17,18 @@ void StatusLED::initialize(){
 
 }
 
+// Blink 10 times rapidly to alert that we're factory resetting the device
+void StatusLED::triggerResetWarning(){
+	for( uint8_t i = 0; i < 10; i++ ){
+		pixels->setPixel(0, 255<<16);
+		pixels->show();
+		delay(50);
+		pixels->setPixel(0, 0);
+		pixels->show();
+		delay(50);
+	}
+}
+
 
 void StatusLED::loop(){
 
@@ -88,8 +100,14 @@ void StatusLED::loop(){
 	else{
 		g = 50;
 
-		// Mix in red when low battery
-		if( lowBattery ){
+		// Quick flash for app connected
+		if( ms-lastAppConnect < 500 && lastAppConnect ){
+			r = b = 255;
+			g = 0;
+		}
+
+		// Mix in red when low battery. Fading in and out green and yellow.
+		else if( lowBattery ){
 			uint16_t step = ms%2000;
 			if( step < 1000 )
 				r = map(step, 0, 1000, 0, 50);

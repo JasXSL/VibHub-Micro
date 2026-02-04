@@ -138,9 +138,11 @@ String VhWifi::onAjax( WiFiManager* wm ){
     strlcpy(task, wm->server->arg(F("t")).c_str(), 10);
     
     String page;
-    if( strcmp(task, "id") == 0 || strcmp(task, "ids") == 0 ){
+    const bool isSecure = strcmp(task, "ids") == 0;
+    if( strcmp(task, "id") == 0 || isSecure ){
         
-        userSettings.generateDeviceId(task == "ids", true);
+        Serial.printf("[AJAX] Generating new device ID, secure: %i\n", isSecure);
+        userSettings.generateDeviceId(isSecure, true);
         page = userSettings.deviceid;
 
     }

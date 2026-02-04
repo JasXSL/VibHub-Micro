@@ -33,11 +33,12 @@ void ApiClient::setup(){
     // For simplicity, events are always attached regardless
     _socket.on("connect", std::bind(&ApiClient::event_connect, this, _1, _2));
     _socket.on("disconnect", std::bind(&ApiClient::event_disconnect, this, _1, _2));
-    _socket.on("vib", std::bind(&ApiClient::event_vib, this, _1, _2));
-    _socket.on("p", std::bind(&ApiClient::event_p, this, _1, _2));
-    _socket.on("ps", std::bind(&ApiClient::event_ps, this, _1, _2));
-    _socket.on("gb", std::bind(&ApiClient::event_gb, this, _1, _2));
-
+    _socket.on(CTASK_PROGRAMS, std::bind(&ApiClient::event_vib, this, _1, _2));  // REST program
+    _socket.on(CTASK_PWM_BASIC, std::bind(&ApiClient::event_p, this, _1, _2));      // Ports all
+    _socket.on(CTASK_PWM_SPECIFIC, std::bind(&ApiClient::event_ps, this, _1, _2));    // Port specific
+    _socket.on(CTASK_BATTERY_LEVEL_IN, std::bind(&ApiClient::event_gb, this, _1, _2));    // Get battery
+    _socket.on(CTASK_ADD_APP, std::bind(&ApiClient::event_app, this, _1, _2));  // App connected
+    
 	resetMotors();
 
 }
@@ -293,6 +294,12 @@ void ApiClient::event_p( const char * payload, size_t length ){
 
 }
 
+void ApiClient::event_app( const char * payload, size_t length ){
+    length = strnlen(payload, length); // For some reason, length is often wrong here
+    statusLED.triggerAppConnect();
+    Serial.printf("ApiClient::event_app - %s, length %i\n", payload, length);       
+
+}
 // receiving a hex string
 void ApiClient::event_ps( const char * payload, size_t length ){
     length = strnlen(payload, length);

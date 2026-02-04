@@ -77,7 +77,7 @@ void setup() {
     bool reset = false;
     if( configButton.isPressed() ){
 
-        Serial.println("Resetting everything");
+        statusLED.triggerResetWarning();
         reset = true;
 
     }

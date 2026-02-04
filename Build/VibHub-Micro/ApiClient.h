@@ -31,6 +31,7 @@ class ApiClient {
         void event_vib(const char * payload, size_t length);
         void event_p(const char * payload, size_t length);
         void event_ps(const char * payload, size_t length);
+        void event_app(const char * payload, size_t length);
 
         void handle_connect( const char * payload, size_t length, char * out = NULL, size_t outLength = 0 );
         void handle_gb(const char * payload, size_t length, char * out = NULL, size_t outLength = 0);

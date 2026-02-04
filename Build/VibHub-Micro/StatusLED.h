@@ -26,6 +26,8 @@ class StatusLED{
         //void setCharging( bool charging ){ this->charging = charging; loop(); };
         void setSocketConnected( bool socketConnected ){ this->socketConnected = socketConnected; loop(); };
         void setLowBattery( bool lowBattery ){ this->lowBattery = lowBattery; loop(); };
+        void triggerResetWarning();
+        void triggerAppConnect(){ this->lastAppConnect = millis(); };
 
     private:
         uint8_t programState;           // State the program is currently in
@@ -37,6 +39,7 @@ class StatusLED{
         bool socketError = false;       // Socket error found
         bool socketConnected = false;   // Everything is connected and setup
         bool lowBattery = false;        
+        uint32_t lastAppConnect = 0;    // Timestamp for app connect
         uint8_t curR = 0;
         uint8_t curG = 0;
         uint8_t curB = 0;

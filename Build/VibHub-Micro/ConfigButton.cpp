@@ -12,14 +12,14 @@
 #include "UserSettings.h"
 #include "ApiClient.h"
 
-unsigned long _heldTime;
-int _lastButtonState;
+uint32_t _heldTime;
+bool _lastButtonState;
 bool _doReconfigure;
 bool _isReconfiguring;
 bool _buttonHeld;
 
-unsigned long _pressedTime;
-int _pressCount;
+uint32_t _pressedTime;
+uint16_t _pressCount;
 
 ConfigButton::ConfigButton( void ){
 
@@ -35,7 +35,7 @@ ConfigButton::ConfigButton( void ){
 void ConfigButton::setup(){
 
     //set wifireset pin as input
-    pinMode(Configuration::PIN_CONFIG_BUTTON, INPUT_PULLUP);
+    pinMode(Configuration::PIN_CONFIG_BUTTON, INPUT);
 
 }
 
@@ -65,16 +65,16 @@ bool ConfigButton::loop( bool isReconfiguring ){
 
     }
     
-    int buttonState = digitalRead(Configuration::PIN_CONFIG_BUTTON);
-    long delta = millis() - _heldTime;
+    const bool pressed = isPressed();
+    uint32_t delta = millis() - _heldTime;
 
     // Pressed
-    if( buttonState == Configuration::BUTTON_DOWN && _lastButtonState == Configuration::BUTTON_UP ){
+    if( pressed && !_lastButtonState ){
         _heldTime = millis();
     }
 
     // Start after holding for 4 seconds
-    else if( buttonState == Configuration::BUTTON_DOWN && delta > Configuration::BUTTON_HOLD_TIME ){
+    else if( pressed && delta > Configuration::BUTTON_HOLD_TIME ){
 
         Serial.println("ConfigButton:  Button Held >4s");
         if( !isReconfiguring ){
@@ -105,7 +105,7 @@ bool ConfigButton::loop( bool isReconfiguring ){
     }
 
     // Released
-    else if( buttonState == Configuration::BUTTON_UP && _lastButtonState == Configuration::BUTTON_DOWN ){
+    else if( !pressed && _lastButtonState ){
 
         _buttonHeld = false;
         if( delta > Configuration::BUTTON_DEBOUNCE ){
@@ -150,7 +150,7 @@ bool ConfigButton::loop( bool isReconfiguring ){
 
     }
     // Give visual indication that button has been held long enough
-    else if( !_buttonHeld && buttonState == Configuration::BUTTON_DOWN && _lastButtonState == Configuration::BUTTON_DOWN ){
+    else if( !_buttonHeld && pressed && _lastButtonState ){
 
         if( delta > Configuration::BUTTON_HOLD_TIME ){
 
@@ -162,7 +162,7 @@ bool ConfigButton::loop( bool isReconfiguring ){
 
     }
     
-    _lastButtonState = buttonState;
+    _lastButtonState = pressed;
     
     return false;
 
