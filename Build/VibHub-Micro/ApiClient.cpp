@@ -10,6 +10,7 @@
 #include "UserSettings.h"
 #include "StatusLED.h"
 #include "BatteryReader.h"
+#include "TemperatureReader.h"
 #include <ArduinoJson.h>
 #include "VhWifi.h"
 
@@ -36,7 +37,7 @@ void ApiClient::setup(){
     _socket.on(CTASK_PROGRAMS, std::bind(&ApiClient::event_vib, this, _1, _2));  // REST program
     _socket.on(CTASK_PWM_BASIC, std::bind(&ApiClient::event_p, this, _1, _2));      // Ports all
     _socket.on(CTASK_PWM_SPECIFIC, std::bind(&ApiClient::event_ps, this, _1, _2));    // Port specific
-    _socket.on(CTASK_BATTERY_LEVEL_IN, std::bind(&ApiClient::event_gb, this, _1, _2));    // Get battery
+    _socket.on(CTASK_BOARD_STATUS_IN, std::bind(&ApiClient::event_gb, this, _1, _2));    // Get battery
     _socket.on(CTASK_ADD_APP, std::bind(&ApiClient::event_app, this, _1, _2));  // App connected
     
 	resetMotors();
@@ -146,6 +147,7 @@ void ApiClient::handle_gb( const char * payload, size_t length, char * out, size
     output["low"] = batteryReader.isLow();
     output["mv"] = batteryReader.getMv();
     output["xv"] = Configuration::MAX_BATTERY_VOLTAGE;
+    output["t"] = temperatureReader.temperatureC;
     if( payload )
         output["app"] = jsonBuffer["id"];
 

@@ -9,7 +9,6 @@ BatteryReader::BatteryReader(){
 
 void BatteryReader::setup(){
 	pinMode(Configuration::PIN_BATTERY_LV, INPUT);
-	analogSetAttenuation(ADC_11db);
 }
 
 void BatteryReader::loop(){

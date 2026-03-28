@@ -57,6 +57,8 @@ void setup() {
     };
     statusLED.initialize();
 
+	analogSetAttenuation(ADC_11db);
+
     Serial.println("CPU0 reset reason:");
     print_reset_reason(rtc_get_reset_reason(0));
 
