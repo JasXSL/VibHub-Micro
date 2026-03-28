@@ -22,6 +22,7 @@ SET_LOOP_TASK_STACK_SIZE(1024 * 16);
 #include "StatusLED.h"
 #include "BatteryReader.h"
 #include "VhSerial.h"
+#include "TemperatureReader.h"
 #include "esp32s3/rom/rtc.h"
 void print_reset_reason(int reason) {
   switch (reason) {
@@ -48,8 +49,9 @@ void print_reset_reason(int reason) {
 void setup() {
     
     Serial.begin(115200);
+    delay(1000);
     uint8_t n = 0;
-    while(!Serial && n < 10) {
+    while( !Serial && n < 10 ){
         delay(100);
         ++n;
     };
@@ -72,6 +74,7 @@ void setup() {
     configButton.setup();
     apiClient.setup();
     batteryReader.setup();
+    temperatureReader.setup();
 
     // Reset config and wifi if config button is held on boot
     bool reset = false;
@@ -119,6 +122,7 @@ void loop() {
     userSettings.loop();
     statusLED.loop();
     vhSerial.loop();
+    temperatureReader.loop();
     //ArduinoOTA.handle();
 
 

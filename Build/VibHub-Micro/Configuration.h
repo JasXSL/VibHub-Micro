@@ -19,6 +19,7 @@
 #define CTASK_BATTERY_LEVEL "sb"                // Capable of reporting battery status
 #define CTASK_HIGHRES "h"                       // Capable of handling high-res versions of PWM_BASIC/SPECIFIC and PROGRAMS. The desc is a string representation of the max nr of bits we support.              
 #define CTASK_ADD_APP "app"                     // Capable of doing something when app connects to us 
+#define CTASK_TEMPERATURE "temp"                // Capable of reporting temperature on the board
 
 #define CTASK_BATTERY_LEVEL_IN "gb"              // Only received, not sent
 
@@ -44,14 +45,15 @@ namespace Configuration{
     const char API_URL[]            = "/socket.io/?transport=websocket";
     const char SETTINGS_FILE[]      = "/config.json";   // Default SPIFFS config file
 
-    const uint8_t NR_CAPABILITIES   = 6;
+    const uint8_t NR_CAPABILITIES   = 7;
     const Capability CAPABILITIES[NR_CAPABILITIES] = {
         Capability(CTASK_PWM_BASIC),
         Capability(CTASK_PWM_SPECIFIC),
         Capability(CTASK_PROGRAMS),
         Capability(CTASK_BATTERY_LEVEL),
         Capability(CTASK_HIGHRES, "12"),
-        Capability(CTASK_ADD_APP)
+        Capability(CTASK_ADD_APP),
+        Capability(CTASK_TEMPERATURE)
     };
 
     // Websockets
@@ -71,6 +73,9 @@ namespace Configuration{
     const uint8_t PIN_BATTERY_LV = 10;
     const uint32_t LOW_BATTERY_VOLTAGE = 3400; // Millivolts ~3.4V
     const uint32_t MAX_BATTERY_VOLTAGE = 4200;
+
+    // Temperature sensor
+    const uint8_t PIN_TEMP_SENSOR = 7;
 
     // PWM
     const uint16_t PWM_FREQ         = 8000;    // PWM Frequency
