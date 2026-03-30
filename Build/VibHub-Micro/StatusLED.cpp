@@ -1,5 +1,6 @@
 #include "StatusLED.h"
 #include "Configuration.h"
+#include "UserSettings.h"
 #include <Arduino.h>
 #include "VhWifi.h"
 
@@ -98,22 +99,24 @@ void StatusLED::loop(){
 	}
 	// Normal operation
 	else{
-		g = 50;
+		
+		r = (userSettings.status_led_color>>16) & 0xFF;
+		g = (userSettings.status_led_color>>8) & 0xFF;
+		b = userSettings.status_led_color & 0xFF;
 
-		// Quick flash for app connected
-		if( ms-lastAppConnect < 500 && lastAppConnect ){
-			r = b = 255;
-			g = 0;
+		// Double pink flash for app connected
+		const uint32_t delta = ms-lastAppConnect;
+		if( delta < 500 && lastAppConnect ){
+
+			if( delta%250 < 125 )
+				r = b = 255;
+			
 		}
 
-		// Mix in red when low battery. Fading in and out green and yellow.
-		else if( lowBattery ){
-			uint16_t step = ms%2000;
-			if( step < 1000 )
-				r = map(step, 0, 1000, 0, 50);
-			else
-				r = map(step, 1000, 2000, 50, 0);
-		}
+		// Blink yellow while low battery.
+		else if( lowBattery && ms%2000 < 1000 )
+			r = g = 255;
+		
 
 	}
 
@@ -127,6 +130,12 @@ void StatusLED::loop(){
 
 }
 
+// Overrides color. Usually followed by a sleep or a loop. Overridden next time StatusLED::loop is called
+void StatusLED::setColor( uint32_t color ){
+	Serial.printf("R %i, G %i, B %i\n", (color>>16)&0xFF, (color>>8)&0xFF, color&0xFF);
+	pixels->setPixel(0, color);
+	pixels->show();
+}
 
 
 StatusLED statusLED = StatusLED();

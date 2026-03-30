@@ -49,7 +49,7 @@ void print_reset_reason(int reason) {
 void setup() {
     
     Serial.begin(115200);
-    delay(1000);
+
     uint8_t n = 0;
     while( !Serial && n < 10 ){
         delay(100);

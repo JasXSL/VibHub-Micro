@@ -66,6 +66,10 @@ void UserSettings::load( bool reset ){
                     port = jsonBuffer["port"];
                     strcpy(deviceid, jsonBuffer["deviceid"]);
 
+                    // Needed because 0 is a valid color
+                    if( jsonBuffer.containsKey("status_led_color") )
+                        status_led_color = jsonBuffer["status_led_color"];
+
 
                     initialized = jsonBuffer["initialized"];
 
@@ -149,6 +153,7 @@ void UserSettings::save(){
 	json["port"] = port;
 	json["deviceid"] = deviceid;
     json["initialized"] = initialized;
+    json["status_led_color"] = status_led_color;
 
 	File configFile = SPIFFS.open(Configuration::SETTINGS_FILE, "w");
 	if( !configFile )

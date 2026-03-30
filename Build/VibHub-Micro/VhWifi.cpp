@@ -136,6 +136,7 @@ String VhWifi::onAjax( WiFiManager* wm ){
     
     char task[10];
     strlcpy(task, wm->server->arg(F("t")).c_str(), 10);
+
     
     String page;
     const bool isSecure = strcmp(task, "ids") == 0;
@@ -145,6 +146,14 @@ String VhWifi::onAjax( WiFiManager* wm ){
         userSettings.generateDeviceId(isSecure, true);
         page = userSettings.deviceid;
 
+    }
+
+    // Set LED color
+    if( strcmp(task, "clr") == 0 ){
+        userSettings.status_led_color = atoi(wm->server->arg(F("d")).c_str());
+        userSettings.save();
+        Serial.printf("Set status color to %i\n", userSettings.status_led_color);
+        statusLED.setColor(userSettings.status_led_color);
     }
 
     return page;
@@ -217,12 +226,17 @@ void VhWifi::addCustomJSPost( char * src, size_t len ){
 
     
     // Anything with class VH_VERSION gets innerText set to the version
-    strlcat(src, "document.querySelectorAll('.VH_VERSION').forEach(el => {", len);
+    strlcat(src, "QSA('.VH_VERSION').forEach(el => {", len);
         strlcat(src,"el.innerText='", len);
         strlcat(src, Configuration::VH_VERSION, len);
         strlcat(src, "';", len);
     strlcat(src, "});", len);
 
+    char color[10];
+    sprintf(color, "#%06x", userSettings.status_led_color);
+    strlcat(src, "GID('ledColor').value='", len);
+        strlcat(src, color, len);
+    strlcat(src, "';", len);
     
     /*
     // Update with the DEVICE ID

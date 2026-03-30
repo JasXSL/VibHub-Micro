@@ -28,6 +28,7 @@ class StatusLED{
         void setLowBattery( bool lowBattery ){ this->lowBattery = lowBattery; loop(); };
         void triggerResetWarning();
         void triggerAppConnect(){ this->lastAppConnect = millis(); };
+        void setColor( uint32_t color );
 
     private:
         uint8_t programState;           // State the program is currently in
