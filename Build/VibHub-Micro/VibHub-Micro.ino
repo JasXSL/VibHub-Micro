@@ -6,6 +6,19 @@ External libraries needed:
 Ticker-esp32 ??? Don't know where you got this
 ~~Kadah's fork of arduinoWebSockets: https://github.com/Kadah/arduinoWebSockets
 and socket.io-client: https://github.com/JasXSL/socket.io-client
+
+Unit tests before release:
+[APP]
+- Program receive
+- Direct data receive
+- Capabilities receive
+- HD receive
+
+[DEVICE]
+- Battery reading
+- Config button long press
+- Temperature reading detected
+
 */ 
 #include <Arduino.h>
 SET_LOOP_TASK_STACK_SIZE(1024 * 16);

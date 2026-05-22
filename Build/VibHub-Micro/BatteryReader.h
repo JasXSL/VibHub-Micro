@@ -14,6 +14,7 @@ class BatteryReader{
 		uint32_t lastRefresh = 0;	// update
 		bool _isLow = false;
 		uint32_t _mv = 0;
+		void read();
 
 };
 

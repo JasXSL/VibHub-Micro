@@ -20,8 +20,6 @@ Motor::Motor( uint8_t pin_en, uint8_t pin_rev ) :
 	this->pin_en = pin_en;
 	this->pin_rev = pin_rev;
 
-	Serial.printf("Setting %i to LOW\n", pin_rev);
-
 	ledcAttach(pin_en, Configuration::PWM_FREQ, Configuration::PWM_RESOLUTION);
 	setPWM(0);
 
@@ -41,7 +39,6 @@ void Motor::loadProgram( JsonArray stages, int16_t repeats, bool highRes ){
 	for( auto stage : stages )
 		program.addStageFromJson(stage);
 	
-    Serial.println("Calling program start");
 	program.start();
 
 }

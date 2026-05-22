@@ -114,8 +114,10 @@ void StatusLED::loop(){
 		}
 
 		// Blink yellow while low battery.
-		else if( lowBattery && ms%2000 < 1000 )
+		else if( lowBattery && ms%2000 < 1000 ){
 			r = g = 255;
+			b = 0;
+		}
 		
 
 	}

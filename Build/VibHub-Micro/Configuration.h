@@ -38,8 +38,8 @@ class Capability{
 
 namespace Configuration{
 
-	const char VH_VERSION[]         = "mc0.0.3";          // Software version
-	const char VH_HWVERSION[]       = "MicroHub R1";      // Hardware type & version
+	const char VH_VERSION[]         = "mc20260521";          // Software version
+	const char VH_HWVERSION[]       = "MicroHub 26.05";      // Hardware type & version
 	const char WIFI_SSID[]          = "VibHub Micro";         // Network SSID
 	const char DEFAULT_HOST[]       = "vibhub.io";      // Default socket host
 	const uint16_t  PORT            = 80;               // Default socket port

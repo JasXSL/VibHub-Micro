@@ -1,10 +1,12 @@
 #include "TemperatureReader.h"
 #include "Configuration.h"
+#include "StatusLED.h"
 
 TemperatureReader::TemperatureReader() {
 	temperatureC = 0;
 	lastRead = 0;
 	supported = false;
+	overheating = false;
 }
 
 void TemperatureReader::setup() {
@@ -16,10 +18,10 @@ void TemperatureReader::setup() {
 
 	if( r > 400 ){ // Basic feature detect. Going below 400 would mean -7C or below. At which point you probably don't want to use a Lithium battery anyhow.
 		supported = true;
-		Serial.printf("[TemperatureReader] Detected (%i mV)!\n", r);
+		Serial.printf("[INIT] Thermistor OK (%i mV)!\n", r);
 	}
 	else
-		Serial.printf("[TemperatureReader] Not detected, turning off feature (%i mV). \n", r);
+		Serial.printf("!! [INIT] Thermistor NOT detected, turning off feature (%i mV). \n", r);
 
 	// Test if feature is supported
 	if( !supported ) 
@@ -27,6 +29,17 @@ void TemperatureReader::setup() {
 
 }
 
+void TemperatureReader::onOverheat() {
+	
+	overheating = true;
+	// To quote the president of madagascar: SHUT. DOWN. EVERYTHING!
+	statusLED.setColor(0xFF0000);
+	Serial.printf("Shutting down due to overheating (%f C).", temperatureC);
+	delay(500);
+	esp_sleep_enable_timer_wakeup(5 * 1000000);		// Turn off for 5 sec to prevent overheating
+	esp_deep_sleep_start();
+
+}
 
 void TemperatureReader::loop() {
 
@@ -56,7 +69,9 @@ void TemperatureReader::loop() {
 	float inv_t = (1.0f / 298.15) + (1.0f / B_VALUE) * logf(ratio);
 
 	temperatureC = 1.0f / inv_t - 273.15f;
-	// Todo: Maybe turn off it temperature is too high?
+	
+	if( temperatureC > OVERHEAT_TEMPERATURE )
+		onOverheat();
 
 }
 
